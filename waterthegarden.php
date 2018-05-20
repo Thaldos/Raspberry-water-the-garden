@@ -65,8 +65,6 @@ function getDelaySinceLastWatering() {
             for ($i = 0; $i <= DELAY_SINCE_LAST_WATERING; $i++) {
                 $dateToDay->add('');
             }
-
-            var_dump($content);
         }
     } else {
         sendNotification('Cannot get content from file ' . LAST_PRECIPITATIONS_FILENAME);
