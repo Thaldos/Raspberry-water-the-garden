@@ -32,7 +32,7 @@ function waterTheGarden()
         $delaySinceLastWatering = getDelaySinceLastWatering($dateToDay);
 
         // Get watering time :
-        $wateringTime = getDelayForWatering($todayTemperature, $delaySinceLastWatering);
+        $wateringTime = getDelayOfWatering($todayTemperature, $delaySinceLastWatering);
 
         // Open then close the pump :
         $isOkManage = openThenCloseThePump($wateringTime);
@@ -40,7 +40,7 @@ function waterTheGarden()
         // Send a goo notification :
         if ($isOkManage !== false) {
             // Save the date of this watering :
-//            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
 
             $dateNow = new DateTime('NOW');
             //sendNotification('The garden have been successfully watered during ' . $wateringTime . ' minutes between '
@@ -146,27 +146,22 @@ function setInFile($fileName, $date) {
 /**
  *
  */
-function getDelayForWatering($temperatureToday, $delaySinceLastWatering)
+function getDelayOfWatering($temperatureToday, $delaySinceLastWatering)
 {
-    $delayForWatering = 0;
+    $delayOfWatering = 0;
 
     if (DELAY_MIN_SINCE_LAST_WATERING < $delaySinceLastWatering &&
         TEMPERATURE_FOR_START_WATERING < $temperatureToday) {
-        $delayForWatering = DELAY_WATERING_MIN;
+        $delayOfWatering = DELAY_WATERING_MIN;
 
-        if (DELAY_WATERING_MAX < $delayForWatering) {
-            $delayForWatering = DELAY_WATERING_MAX;
+        // Produit en croix
+
+        if (DELAY_WATERING_MAX < $delayOfWatering) {
+            $delayOfWatering = DELAY_WATERING_MAX;
         }
     }
 
-    // If the today temperature is more that the threshold and the sum of last two days precipitations is less that the threshold :
-    //if ($tempPrecipToday['temperature'] > TEMPERATURE_THRESHOLD &&
-    //    $tempPrecipToday['precipitation'] + $tempPrecipYesterday['precipitation'] < PRECIPITATION_THRESHOLD) {
-
-    //}
-
-
-    return $delayForWatering;
+    return $delayOfWatering;
 }
 
 /**
