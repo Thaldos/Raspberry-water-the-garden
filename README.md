@@ -66,6 +66,22 @@ Zend Engine v3.0.0, Copyright (c) 1998-2016 Zend Technologies
 with Zend OPcache v7.0.6-dev, Copyright (c) 1999-2016, by Zend Technologies
 ```
 
+### Install Curl
+Type in Raspberry terminal :
+
+```
+sudo apt-get install curl
+```
+
+### Install Composer
+Type in Raspberry terminal :
+
+```
+cd /usr/src  
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+```
+
+
 ### Wi-Fi autoconnecting
 Type in your terminal :
 <code>sudo nano /etc/wpa_supplicant/wpa_supplicant.conf</code>
@@ -133,19 +149,39 @@ Launch VNC viewer and add a new connection to `192.168.1.201:1`
 
 > Important note: be sure te be on same Wi-Fi network on both sides.
 
+### Install SMTP
+Follow this good tutorial:
+
+https://hotfirenet.com/blog/1704-envoyer-mail-depuis-le-raspberry-pi/ (French link)
+
 <br>
     
 ## Project installation
 ### Copy project files on your Raspberry pi
-Copy all this project files to your Raspberry in `/home/pi/controlled_interruptor/`.
+Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-garden/`.
 
 ### Configure
 Customize the constants in the `config.php` file.
 
+### Download the library vendors 
+Then type in Raspberry terminal :
+
+```
+cd /home/pi/Raspberry-water-the-garden/library 
+composer install
+```
+
+### Set the cron tab
+On your Raspberry, in terminal, type `crontab -e` and add that line:
+```
+0 23 * * * sudo php /home/pi/Raspberry-water-the-garden/waterthegarden.php 2>&1
+```
+
+
 <br>
 
 ## Enjoy!
-Your Raspberry pi will take a picture every day, and send you pictures every month by e-mail.
+Your Raspberry pi will check every day at 23pm if your garden need to be watered, and if it is needed, the Raspberry will water your garden during the appropriate delay.
 
 ## Note
-Special thanks to my wife for the logic in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.
+Special thanks to my lovely wife for the logic contained in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.

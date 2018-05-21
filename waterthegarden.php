@@ -72,7 +72,13 @@ function openThenCloseThePump($delayOfWatering) {
             if ($isOkSleep !== false) {
                 // Close the pump :
                 $isOkOutPutZero = $gpio->output(INTERRUPTOR_PIN_NUMERO, 0);
-                if ($isOkOutPutZero === false) {
+                if ($isOkOutPutZero !== false) {
+                    $isOkUnexport = $gpio->unexportAll();
+                    if ($isOkUnexport === false) {
+                        $isOk = false;
+                        sendNotification('Cannot unexport the pin numero ' . INTERRUPTOR_PIN_NUMERO);
+                    }
+                } else {
                     $isOk = false;
                     sendNotification('Cannot close the pin numero ' . INTERRUPTOR_PIN_NUMERO);
                 }
