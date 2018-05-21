@@ -6,7 +6,7 @@ require 'library/vendor/autoload.php';
 use PhpGpio\Gpio;
 
 const DATE_FORMAT = 'Y-m-d';
-const LAST_PRECIPITATIONS_FILENAME = 'lastprecipitations.txt';
+const LAST_WATERINGS_FILENAME = 'lastwaterings.txt';
 
 /**
  *
@@ -24,22 +24,24 @@ function waterTheGarden()
         $todayTemperature = $temperaturePrecipitationToday['temperature'];
 
         // Save the today precipitation in text file :
-        savePrecipitation($todayPrecipitation);
+        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_LAST_RAINING < $todayPrecipitation) {
+            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+        }
 
         // Get delay since last watering :
-        $delaySinceLastWatering = getDelaySinceLastWatering();
-
-        // Get delay since last raining :
-        $delaySinceLastRaining = getDelaySinceLastRaining();
+        $delaySinceLastWatering = getDelaySinceLastWatering($dateToDay);
 
         // Get watering time :
-        $wateringTime = getWateringTime($todayTemperature, $delaySinceLastRaining, $delaySinceLastWatering);
+        $wateringTime = getDelayForWatering($todayTemperature, $delaySinceLastWatering);
 
         // Open then close the pump :
         $isOkManage = openThenCloseThePump($wateringTime);
 
         // Send a goo notification :
         if ($isOkManage !== false) {
+            // Save the date of this watering :
+//            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+
             $dateNow = new DateTime('NOW');
             //sendNotification('The garden have been successfully watered during ' . $wateringTime . ' minutes between '
              //   . $dateToDay->format('Y-m-d H:i:s') . ' and ' . $dateNow->format('Y-m-d H:i:s') . '.');
@@ -48,47 +50,12 @@ function waterTheGarden()
 }
 
 /**
- * @return int
- */
-function getDelaySinceLastWatering() {
-    $delaySinceLastWatering = 0;
-
-    // Get existing content :
-    $contentJson = file_get_contents(LAST_PRECIPITATIONS_FILENAME);
-    if ($contentJson !== false) {
-        $content = json_decode($contentJson, true);
-        if (!empty($content)) {
-            // Get today date :
-            $dateToDay = new DateTime('NOW');
-
-            // Get date bewteen today and the last watering :
-            for ($i = 0; $i <= DELAY_SINCE_LAST_WATERING; $i++) {
-                $dateToDay->add('');
-            }
-        }
-    } else {
-        sendNotification('Cannot get content from file ' . LAST_PRECIPITATIONS_FILENAME);
-    }
-
-    return $delaySinceLastWatering;
-}
-
-/**
- * @return int
- */
-function getDelaySinceLastRaining() {
-    $delaySinceLastRaining = 0;
-
-    return $delaySinceLastRaining;
-}
-
-/**
  *
  */
 function openThenCloseThePump($wateringTime) {
     $isOk = true;
 
-    if (DELAY_WATERING_MIN <= $wateringTime && $wateringTime <= DELAY_WATERING_MIN) {
+//    if (DELAY_WATERING_MIN <= $wateringTime && $wateringTime <= DELAY_WATERING_MIN) {
         // Initialize the pin :
         //$gpio = new GPIO();
         //$gpio->setup(INTERRUPTOR_PIN_NUMERO, "out");
@@ -101,48 +68,76 @@ function openThenCloseThePump($wateringTime) {
 
         // Close the pump :
         // $gpio->output(INTERRUPTOR_PIN_NUMERO, 0);
-    }
+//    }
 
     return $isOk;
 }
 
 /**
- *
+ * @return int
  */
-function savePrecipitation($precipitation) {
-    $isOk = true;
-
-    // Get today date :
-    $dateToDay = new DateTime('NOW');
-    $toDay = $dateToDay->format('d');
+function getDelaySinceLastWatering($dateTime) {
+    $delaySinceLastWatering = 0;
 
     // Get existing content :
-    $contentJson = file_get_contents(LAST_PRECIPITATIONS_FILENAME);
+    $contentJson = file_get_contents(LAST_WATERINGS_FILENAME);
+    if ($contentJson !== false) {
+        $content = json_decode($contentJson, true);
+        if (!empty($content)) {
+            $maxInterval = 1000;
+
+            // For each date from file :
+            foreach ($content as $dateFromFile) {
+                $dateTimeFromFile = DateTime::createFromFormat(DATE_FORMAT, $dateFromFile);
+                $interval = $dateTimeFromFile->diff($dateTime)->format('%a');
+                if ($interval < $maxInterval) {
+                    // Save as max interval :
+                    $maxInterval = $interval;
+                }
+            }
+            $delaySinceLastWatering = $maxInterval;
+        }
+    } else {
+        sendNotification('Cannot get content from file ' . LAST_WATERINGS_FILENAME);
+    }
+
+    return $delaySinceLastWatering;
+}
+
+
+/**
+ *
+ */
+function setInFile($fileName, $date) {
+    $isOk = true;
+
+    // Get existing content :
+    $contentJson = file_get_contents($fileName);
     if ($contentJson !== false) {
         $content = json_decode($contentJson, true);
 
         // If not yet content :
         if (empty($content)) {
             // Create new content :
-            $newContent = json_encode(array($toDay => $precipitation));
-            $putReturn = file_put_contents(LAST_PRECIPITATIONS_FILENAME, $newContent);
+            $newContent = json_encode(array($date => $date));
+            $putReturn = file_put_contents($fileName, $newContent);
             if ($putReturn === false) {
                 $isOk = false;
-                sendNotification('Cannot save precipitation ' . $precipitation . ' in file ' . LAST_PRECIPITATIONS_FILENAME);
+                sendNotification('Cannot save ' . $date . ' in file ' . $fileName);
             }
         } else {
-            // Add the precipitation :
-            $content[$toDay] = $precipitation;
+            // Add the new value :
+            $content[$date] = $date;
             $newContentJson = json_encode($content);
-            $putReturn = file_put_contents(LAST_PRECIPITATIONS_FILENAME, $newContentJson);
+            $putReturn = file_put_contents($fileName, $newContentJson);
             if ($putReturn === false) {
                 $isOk = false;
-                sendNotification('Cannot save precipitation ' . $precipitation . ' in file ' . LAST_PRECIPITATIONS_FILENAME);
+                sendNotification('Cannot save ' . $date . ' in file ' . $fileName);
             }
         }
     } else {
         $isOk = false;
-        sendNotification('Cannot get content from file ' . LAST_PRECIPITATIONS_FILENAME);
+        sendNotification('Cannot get content from file ' . $fileName);
     }
 
     return $isOk;
@@ -151,20 +146,27 @@ function savePrecipitation($precipitation) {
 /**
  *
  */
-function getWateringTime($temperatureToday, $lastPrecipitations, $lastWatering)
+function getDelayForWatering($temperatureToday, $delaySinceLastWatering)
 {
-    $wateringTime = 0;
+    $delayForWatering = 0;
+
+    if (DELAY_MIN_SINCE_LAST_WATERING < $delaySinceLastWatering &&
+        TEMPERATURE_FOR_START_WATERING < $temperatureToday) {
+        $delayForWatering = DELAY_WATERING_MIN;
+
+        if (DELAY_WATERING_MAX < $delayForWatering) {
+            $delayForWatering = DELAY_WATERING_MAX;
+        }
+    }
 
     // If the today temperature is more that the threshold and the sum of last two days precipitations is less that the threshold :
     //if ($tempPrecipToday['temperature'] > TEMPERATURE_THRESHOLD &&
     //    $tempPrecipToday['precipitation'] + $tempPrecipYesterday['precipitation'] < PRECIPITATION_THRESHOLD) {
 
     //}
-    //if ($wateringTime > WATERING_TIME_MAX) {
-    //    $wateringTime = WATERING_TIME_MAX;
-    //}
 
-    return $wateringTime;
+
+    return $delayForWatering;
 }
 
 /**
