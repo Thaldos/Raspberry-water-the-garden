@@ -146,3 +146,6 @@ Customize the constants in the `config.php` file.
 
 ## Enjoy!
 Your Raspberry pi will take a picture every day, and send you pictures every month by e-mail.
+
+## Note
+Special thanks to my wife for the logic in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.

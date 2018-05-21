@@ -20,11 +20,8 @@ function waterTheGarden()
     // Get the max temperature and total precipitation of today :
     $temperaturePrecipitationToday = getTemperaturePrecipitation($toDay);
     if ($temperaturePrecipitationToday !== false) {
-        $todayPrecipitation = $temperaturePrecipitationToday['precipitation'];
-        $todayTemperature = $temperaturePrecipitationToday['temperature'];
-
         // Save the today precipitation in text file :
-        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_LAST_RAINING < $todayPrecipitation) {
+        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_LAST_RAINING < $temperaturePrecipitationToday['precipitation']) {
             $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
         }
 
@@ -32,19 +29,26 @@ function waterTheGarden()
         $delaySinceLastWatering = getDelaySinceLastWatering($dateToDay);
 
         // Get watering time :
-        $wateringTime = getDelayOfWatering($todayTemperature, $delaySinceLastWatering);
+        $delayOfWatering = getDelayOfWatering($temperaturePrecipitationToday['temperature'], $delaySinceLastWatering);
 
-        // Open then close the pump :
-        $isOkManage = openThenCloseThePump($wateringTime);
+        // Recheck to be safe (but already done in getDelayOfWatering()) :
+        if (DELAY_WATERING_MIN <= $delayOfWatering && $delayOfWatering <= DELAY_WATERING_MIN) {
+            // Open then close the pump :
+            $isOkOpen = openThenCloseThePump($delayOfWatering);
 
-        // Send a goo notification :
-        if ($isOkManage !== false) {
-            // Save the date of this watering :
-            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+            // Send a goo notification :
+            if ($isOkOpen !== false) {
+                // Save the date of this watering :
+                $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
 
-            $dateNow = new DateTime('NOW');
-            //sendNotification('The garden have been successfully watered during ' . $wateringTime . ' minutes between '
-             //   . $dateToDay->format('Y-m-d H:i:s') . ' and ' . $dateNow->format('Y-m-d H:i:s') . '.');
+                $dateNow = new DateTime('NOW');
+                sendNotification(
+                    'The garden have been successfully watered during ' . $delayOfWatering . ' minutes between '
+                    . $dateToDay->format('Y-m-d H:i:s') . ' and ' . $dateNow->format('Y-m-d H:i:s') . '.'
+                );
+            }
+        } else {
+            sendNotification('The garden doesn\'t need to be watered today (' . $dateNow->format('Y-m-d H:i:s') . ').');
         }
     }
 }
@@ -52,23 +56,38 @@ function waterTheGarden()
 /**
  *
  */
-function openThenCloseThePump($wateringTime) {
+function openThenCloseThePump($delayOfWatering) {
     $isOk = true;
 
-//    if (DELAY_WATERING_MIN <= $wateringTime && $wateringTime <= DELAY_WATERING_MIN) {
-        // Initialize the pin :
-        //$gpio = new GPIO();
-        //$gpio->setup(INTERRUPTOR_PIN_NUMERO, "out");
-
+    // Initialize the pin :
+    $gpio = new GPIO();
+    $isOkSetup = $gpio->setup(INTERRUPTOR_PIN_NUMERO, "out");
+    if ($isOkSetup !== false) {
         // Open the pump :
-        // $gpio->output(INTERRUPTOR_PIN_NUMERO, 1);
-
-        // Wait during the watering time :
-        //sleep($wateringTime);
-
-        // Close the pump :
-        // $gpio->output(INTERRUPTOR_PIN_NUMERO, 0);
-//    }
+        $isOkOutPutOne = $gpio->output(INTERRUPTOR_PIN_NUMERO, 1);
+        if ($isOkOutPutOne !== false) {
+            // Wait during the watering time :
+            $seconds = $delayOfWatering * 60;
+            $isOkSleep = sleep($seconds);
+            if ($isOkSleep !== false) {
+                // Close the pump :
+                $isOkOutPutZero = $gpio->output(INTERRUPTOR_PIN_NUMERO, 0);
+                if ($isOkOutPutZero === false) {
+                    $isOk = false;
+                    sendNotification('Cannot close the pin numero ' . INTERRUPTOR_PIN_NUMERO);
+                }
+            } else {
+                $isOk = false;
+                sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
+            }
+        } else {
+            $isOk = false;
+            sendNotification('Cannot open the pin numero ' . INTERRUPTOR_PIN_NUMERO);
+        }
+    } else {
+        $isOk = false;
+        sendNotification('Cannot initialize the pin numero ' . INTERRUPTOR_PIN_NUMERO);
+    }
 
     return $isOk;
 }
@@ -146,16 +165,16 @@ function setInFile($fileName, $date) {
 /**
  *
  */
-function getDelayOfWatering($temperatureToday, $delaySinceLastWatering)
-{
+function getDelayOfWatering($temperature, $delaySinceLastWatering) {
     $delayOfWatering = 0;
 
-    if (DELAY_MIN_SINCE_LAST_WATERING < $delaySinceLastWatering &&
-        TEMPERATURE_FOR_START_WATERING < $temperatureToday) {
-        $delayOfWatering = DELAY_WATERING_MIN;
+    if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_START_WATERING <= $temperature) {
+        $v = (DELAY_WATERING_MAX - DELAY_WATERING_MIN) / (TEMPERATURE_FOR_DELAY_WATERING_MAX - TEMPERATURE_FOR_START_WATERING);
+        $a = (DELAY_WATERING_MAX - DELAY_WATERING_MIN + TEMPERATURE_FOR_START_WATERING * $v) / TEMPERATURE_FOR_DELAY_WATERING_MAX;
+        $b = DELAY_WATERING_MIN - TEMPERATURE_FOR_START_WATERING * $v;
+        $delayOfWatering = $a * $temperature + $b;
 
-        // Produit en croix
-
+        // Clamp with max delay :
         if (DELAY_WATERING_MAX < $delayOfWatering) {
             $delayOfWatering = DELAY_WATERING_MAX;
         }
@@ -167,8 +186,7 @@ function getDelayOfWatering($temperatureToday, $delaySinceLastWatering)
 /**
  *
  */
-function getTemperaturePrecipitation($date)
-{
+function getTemperaturePrecipitation($date) {
     $temperaturePrecipitation = false;
 
     // Get weather from APIXU  :
