@@ -57,7 +57,7 @@ function waterTheGarden()
  *
  */
 function openThenCloseThePump($delayOfWatering) {
-    $isOk = true;
+    $isOk = false;
 
     // Initialize the pin :
     $gpio = new GPIO();
@@ -74,24 +74,21 @@ function openThenCloseThePump($delayOfWatering) {
                 $isOkOutPutZero = $gpio->output(INTERRUPTOR_PIN_NUMERO, 0);
                 if ($isOkOutPutZero !== false) {
                     $isOkUnexport = $gpio->unexportAll();
-                    if ($isOkUnexport === false) {
-                        $isOk = false;
+                    if ($isOkUnexport !== false) {
+                        $isOk = true;
+                    } else {
                         sendNotification('Cannot unexport the pin numero ' . INTERRUPTOR_PIN_NUMERO);
                     }
                 } else {
-                    $isOk = false;
                     sendNotification('Cannot close the pin numero ' . INTERRUPTOR_PIN_NUMERO);
                 }
             } else {
-                $isOk = false;
                 sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
             }
         } else {
-            $isOk = false;
             sendNotification('Cannot open the pin numero ' . INTERRUPTOR_PIN_NUMERO);
         }
     } else {
-        $isOk = false;
         sendNotification('Cannot initialize the pin numero ' . INTERRUPTOR_PIN_NUMERO);
     }
 
