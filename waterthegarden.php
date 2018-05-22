@@ -56,7 +56,8 @@ function waterTheGarden()
 /**
  *
  */
-function openThenCloseThePump($delayOfWatering) {
+function openThenCloseThePump($delayOfWatering)
+{
     $isOk = false;
 
     // Initialize the pin :
@@ -98,7 +99,8 @@ function openThenCloseThePump($delayOfWatering) {
 /**
  * @return int
  */
-function getDelaySinceLastWatering($dateTime) {
+function getDelaySinceLastWatering($dateTime)
+{
     $delaySinceLastWatering = 0;
 
     // Get existing content :
@@ -130,7 +132,8 @@ function getDelaySinceLastWatering($dateTime) {
 /**
  *
  */
-function setInFile($fileName, $date) {
+function setInFile($fileName, $date)
+{
     $isOk = true;
 
     // Get existing content :
@@ -168,7 +171,8 @@ function setInFile($fileName, $date) {
 /**
  *
  */
-function getDelayOfWatering($temperature, $delaySinceLastWatering) {
+function getDelayOfWatering($temperature, $delaySinceLastWatering)
+{
     $delayOfWatering = 0;
 
     if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_START_WATERING <= $temperature) {
@@ -189,7 +193,8 @@ function getDelayOfWatering($temperature, $delaySinceLastWatering) {
 /**
  *
  */
-function getTemperaturePrecipitation($date) {
+function getTemperaturePrecipitation($date)
+{
     $temperaturePrecipitation = false;
 
     // Get weather from APIXU  :
@@ -211,7 +216,7 @@ function getTemperaturePrecipitation($date) {
                         property_exists($forecastday->day, 'totalprecip_mm')) {
                         // Save max temp and precipitation :
                         $temperaturePrecipitation = array(
-                            'temperature' => $forecastday->day->maxtemp_c,
+                            'temperature'   => $forecastday->day->maxtemp_c,
                             'precipitation' => $forecastday->day->totalprecip_mm
                         );
                     } else {
