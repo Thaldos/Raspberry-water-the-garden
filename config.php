@@ -10,8 +10,8 @@ const TEMPERATURE_FOR_START_WATERING = 25;
 // Temperature where the delay max of watering is reached, in Celsius deger :
 const TEMPERATURE_FOR_DELAY_WATERING_MAX = 38;
 
-// Quantity of precipitation for detect the last raining day, in mm :
-const QUANTITY_OF_PRECIPITATION_FOR_DETECT_LAST_RAINING = 20;
+// Quantity of precipitation for detect a raining day, in mm :
+const QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY = 2;
 
 // Delay min since last watering (by irrigation or by raining), in days :
 const DELAY_MIN_SINCE_LAST_WATERING = 2;

@@ -21,7 +21,7 @@ function waterTheGarden()
     $temperaturePrecipitationToday = getTemperaturePrecipitation($toDay);
     if ($temperaturePrecipitationToday !== false) {
         // Save the today precipitation in text file :
-        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_LAST_RAINING < $temperaturePrecipitationToday['precipitation']) {
+        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $temperaturePrecipitationToday['precipitation']) {
             $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
         }
 
