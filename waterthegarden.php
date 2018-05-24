@@ -65,10 +65,10 @@ function waterTheGarden()
         } else {
             sendNotification("The garden hasn't been watered today. \n" .
                 "Today temperature : " . $temperatureToday . "C \n" .
-                "temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
-                "today precipitation : " . $precipitationToday . "mm \n" .
-                "quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
-                "delay since last watering : " . $delaySinceLastWatering . " days \n"
+                "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
+                "Today precipitation : " . $precipitationToday . "mm \n" .
+                "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
+                "Delay since last watering : " . $delaySinceLastWatering . " days \n"
             );
         }
     } else {
