@@ -52,6 +52,7 @@ function waterTheGarden()
                     "Today precipitation : " . $precipitationToday . "mm \n" .
                     "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
                     "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
+                    "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n".
                     "Delay of watering : " . $delayOfWatering . "min \n" .
                     "Date of watering start : " . $dateToDay->format('Y-m-d H:i:s') . "\n" .
                     "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
@@ -68,7 +69,8 @@ function waterTheGarden()
                 "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
                 "Today precipitation : " . $precipitationToday . "mm \n" .
                 "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
-                "Delay since last watering : " . $delaySinceLastWatering . " days \n"
+                "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
+                "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n"
             );
         }
     } else {
