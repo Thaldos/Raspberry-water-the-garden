@@ -20,8 +20,11 @@ function waterTheGarden()
     // Get the max temperature and total precipitation of today :
     $temperaturePrecipitationToday = getTemperaturePrecipitation($toDay);
     if ($temperaturePrecipitationToday !== false) {
+        $temperatureToday = $temperaturePrecipitationToday['temperature'];
+        $precipitationToday = $temperaturePrecipitationToday['precipitation'];
+
         // Save the today precipitation in text file :
-        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $temperaturePrecipitationToday['precipitation']) {
+        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitationToday) {
             $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
         }
 
@@ -29,7 +32,7 @@ function waterTheGarden()
         $delaySinceLastWatering = getDelaySinceLastWatering($dateToDay);
 
         // Get watering time :
-        $delayOfWatering = getDelayOfWatering($temperaturePrecipitationToday['temperature'], $delaySinceLastWatering);
+        $delayOfWatering = getDelayOfWatering($temperatureToday, $delaySinceLastWatering);
 
         // Recheck to be safe (but already done in getDelayOfWatering()) :
         if (DELAY_WATERING_MIN <= $delayOfWatering && $delayOfWatering <= DELAY_WATERING_MIN) {
@@ -43,13 +46,32 @@ function waterTheGarden()
 
                 $dateNow = new DateTime('NOW');
                 sendNotification(
-                    'The garden have been successfully watered during ' . $delayOfWatering . ' minutes between '
-                    . $dateToDay->format('Y-m-d H:i:s') . ' and ' . $dateNow->format('Y-m-d H:i:s') . '.'
+                    'The garden have been successfully watered today.\n' .
+                    'Today temperature : ' . $temperatureToday . '\n' .
+                    'Today precipitation : ' . $precipitationToday . '\n' .
+                    'Delay since last watering : ' . $delaySinceLastWatering . '\n' .
+                    'Delay of watering : ' . $delayOfWatering . '\n' .
+                    'Date of watering start : ' . $dateToDay->format('Y-m-d H:i:s') . '\n' .
+                    'Date of watering end : ' . $dateNow->format('Y-m-d H:i:s') . '\n'
+                );
+            } else {
+                sendNotification('The garden has probably not been watered today because ' .
+                    ' a error occurred during managin the interuptor. It would be a good idea ' .
+                    ' the go to check hardware system.'
                 );
             }
         } else {
-            sendNotification('The garden doesn\'t need to be watered today (' . $dateNow->format('Y-m-d H:i:s') . ').');
+            sendNotification('The garden hasn\'t been watered today.\n' .
+                'Today temperature : ' . $temperatureToday . '\n' .
+                'Today precipitation : ' . $precipitationToday . '\n' .
+                'Delay since last watering : ' . $delaySinceLastWatering . '\n' .
+                'Delay of watering : ' . $delayOfWatering . '\n'
+            );
         }
+    } else {
+        sendNotification('The garden hasn\'t been watered today because cannot get the today temperature ' .
+            ' and precipitation from APIXU.'
+        );
     }
 }
 
@@ -229,7 +251,8 @@ function getTemperaturePrecipitation($date)
                 sendNotification('Cannot get forecast and forecastday properties from APIXU response');
             }
         } else {
-            sendNotification('Error from the APIXU response : ' . $response->error->message);
+            sendNotification('Error from the APIXU response.' .
+                ' Code : ' . $response->error->code . ', message : ' . $response->error->message);
         }
     } else {
         sendNotification('Cannot get response from APIXU');
