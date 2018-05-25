@@ -196,5 +196,7 @@ On your Raspberry, in terminal, type `crontab -e` and add that line:
 ## Enjoy!
 Your Raspberry pi will check every day at 23pm if your garden need to be watered, and if it is needed, the Raspberry will water your garden during the appropriate delay.
 
+<br>
+
 ## Note
 Special thanks to my lovely wife for the logic contained in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.
