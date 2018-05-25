@@ -46,26 +46,31 @@ function waterTheGarden()
 
                 $dateNow = new DateTime('NOW');
                 sendNotification(
-                    'The garden have been successfully watered today.\n' .
-                    'Today temperature : ' . $temperatureToday . '\n' .
-                    'Today precipitation : ' . $precipitationToday . '\n' .
-                    'Delay since last watering : ' . $delaySinceLastWatering . '\n' .
-                    'Delay of watering : ' . $delayOfWatering . '\n' .
-                    'Date of watering start : ' . $dateToDay->format('Y-m-d H:i:s') . '\n' .
-                    'Date of watering end : ' . $dateNow->format('Y-m-d H:i:s') . '\n'
+                    "The garden have been successfully watered today. \n" .
+                    "Today temperature : " . $temperatureToday . "C \n" .
+                    "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
+                    "Today precipitation : " . $precipitationToday . "mm \n" .
+                    "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
+                    "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
+                    "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n".
+                    "Delay of watering : " . $delayOfWatering . "min \n" .
+                    "Date of watering start : " . $dateToDay->format('Y-m-d H:i:s') . "\n" .
+                    "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
                 );
             } else {
                 sendNotification('The garden has probably not been watered today because ' .
-                    ' a error occurred during managin the interuptor. It would be a good idea ' .
-                    ' the go to check hardware system.'
+                    ' a error occurred during handling the interruptor. It would be a good idea ' .
+                    ' the go to check the hardware system.'
                 );
             }
         } else {
-            sendNotification('The garden hasn\'t been watered today.\n' .
-                'Today temperature : ' . $temperatureToday . '\n' .
-                'Today precipitation : ' . $precipitationToday . '\n' .
-                'Delay since last watering : ' . $delaySinceLastWatering . '\n' .
-                'Delay of watering : ' . $delayOfWatering . '\n'
+            sendNotification("The garden hasn't been watered today. \n" .
+                "Today temperature : " . $temperatureToday . "C \n" .
+                "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
+                "Today precipitation : " . $precipitationToday . "mm \n" .
+                "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
+                "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
+                "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n"
             );
         }
     } else {
@@ -266,7 +271,7 @@ function getTemperaturePrecipitation($date)
  */
 function sendNotification($message)
 {
-    var_dump($message);
+    echo $message;
     mail(EMAIL_TO, 'Raspberry garden watering notification', $message);
 }
 
