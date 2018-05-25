@@ -36,7 +36,7 @@ function waterTheGarden()
         $delayOfWatering = getDelayOfWatering($temperatureToday, $delaySinceLastWatering);
 
         // Recheck to be safe (but already done in getDelayOfWatering()) :
-        if (DELAY_WATERING_MIN <= $delayOfWatering && $delayOfWatering <= DELAY_WATERING_MIN) {
+        if (DELAY_WATERING_MIN <= $delayOfWatering && $delayOfWatering <= DELAY_WATERING_MAX) {
             // Open then close the pump :
             $isOkOpen = openThenCloseThePump($delayOfWatering);
 
