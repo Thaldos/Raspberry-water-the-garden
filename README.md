@@ -6,14 +6,25 @@ Water the garden with a Raspberry pi
 ## Prerequisites
 You'll need:
 
-* [Raspberry Pi 3 model B](https://www.adafruit.com/product/3055) (35€)
-* [Raspberry power supply (5V 2.5A)](https://www.amazon.fr/SainSmart-Certified-Raspberry-Adaptateur-Certification/dp/B01LHE8DBU/ref=sr_1_cc_2?s=aps&ie=UTF8&qid=1513517344&sr=1-2-catcorr&keywords=raspberry+3+Power+supply) (8€)
+* [(1) Raspberry power supply (5V 2.5A)](https://www.amazon.fr/SainSmart-Certified-Raspberry-Adaptateur-Certification/dp/B01LHE8DBU/ref=sr_1_cc_2?s=aps&ie=UTF8&qid=1513517344&sr=1-2-catcorr&keywords=raspberry+3+Power+supply) (8€)
+* [(2) Raspberry Pi 3 model B](https://www.adafruit.com/product/3055) (35€)
 * [Raspberry case + heat sink](https://www.amazon.fr/gp/product/B01CPCMWWO/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1) (7€)
-* [Relay board module](https://www.amazon.fr/gp/product/B019GTTS3K/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1) (2€)
+* [(3) Relay board module](https://www.amazon.fr/gp/product/B019GTTS3K/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1) (2€)
 * [SD card 16 Go](https://www.amazon.fr/gp/product/B073S9SFK2/ref=oh_aui_detailpage_o08_s00?ie=UTF8&psc=1) (11€)
-* Patience and passion (prices not available)
+* [(4) Pump](https://www.leroymerlin.fr/v3/p/produits/pompe-arrosage-manuelle-einhell-gc-gp-6538-3800-l-h-e1500896297) (60€)
+* [(5) Vertical Tank Water Level Sensor](https://www.amazon.com/gp/product/B016Q6S2VU/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1) (7€)
+* [(6) Water tank](https://www.leboncoin.fr/) (60€)
+* Patience and passion (prices not yet available)
 
-Total: 63€
+Total: 190€
+
+<br>
+
+
+## Hardware
+Connect your devices like this ("You" is not required):
+
+[![Hardware](https://image.ibb.co/njVeD8/raspberry_pump_2.jpg)](https://image.ibb.co/njVeD8/raspberry_pump_2.jpg)
 
 <br>
 
@@ -66,14 +77,14 @@ Zend Engine v3.0.0, Copyright (c) 1998-2016 Zend Technologies
 with Zend OPcache v7.0.6-dev, Copyright (c) 1999-2016, by Zend Technologies
 ```
 
-### Install Curl
+### Installation of Curl
 Type in Raspberry terminal :
 
 ```
 sudo apt-get install curl
 ```
 
-### Install Composer
+### Installation of Composer
 Type in Raspberry terminal :
 
 ```
@@ -97,7 +108,7 @@ network={
 
 Now when you will restart your Raspberry, it will automatically connects to this network. 
 
-### Fix your Raspberry pi IP
+### Fixing of the Raspberry Pi IP
 Type in Raspberry terminal : `sudo nano /etc/network/interfaces` and append this :
 
 ```
@@ -137,19 +148,19 @@ Check if your IP address is set well:
 It should be the same.
 
 
-### Install VNC server on the Raspberry
+### Installation of VNC server on the Raspberry
 To easily access to your Raspberry every time, you should install VNC. You have to install VNC server on your Raspberry and VNC viewer on you desktop. Follow this good tutorial:
 
 https://www.raspberrypi.org/forums/viewtopic.php?t=123457
 
-### Install VNC viewer on your desktop
+### Installation of VNC viewer on your desktop
 https://www.realvnc.com/en/connect/download/viewer/
 
 Launch VNC viewer and add a new connection to `192.168.1.201:1`
 
 > Important note: be sure te be on same Wi-Fi network on both sides.
 
-### Install SMTP
+### Installation of SMTP
 Follow this good tutorial:
 
 https://hotfirenet.com/blog/1704-envoyer-mail-depuis-le-raspberry-pi/ (French link)
@@ -157,10 +168,12 @@ https://hotfirenet.com/blog/1704-envoyer-mail-depuis-le-raspberry-pi/ (French li
 <br>
     
 ## Project installation
-### Copy project files on your Raspberry pi
+### Copying of the project files on your Raspberry pi
 Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-garden/`.
 
-### Configure
+Then Chmod the file `/home/pi/Raspberry-water-the-garden/lastwaterings.txt` to 777.
+
+### Customization
 Customize the constants in the `config.php` file.
 
 ### Download the library vendors 
