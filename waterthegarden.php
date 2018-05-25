@@ -129,7 +129,7 @@ function openThenCloseThePump($delayOfWatering)
  */
 function getDelaySinceLastWatering($dateTime)
 {
-    $delaySinceLastWatering = false;
+    $delaySinceLastWatering = 1000;
 
     // Get existing content :
     $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
@@ -151,7 +151,7 @@ function getDelaySinceLastWatering($dateTime)
             $delaySinceLastWatering = $maxInterval;
         }
     } else {
-        sendNotification('Cannot get content from file ' . $lastWateringsFilename);
+        sendNotification('Cannot get content from file ' . $lastWateringsFilename . '. If it is the first watering, it is normal.');
     }
 
     return $delaySinceLastWatering;
