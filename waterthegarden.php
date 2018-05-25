@@ -22,10 +22,11 @@ function waterTheGarden()
     if ($temperaturePrecipitationToday !== false) {
         $temperatureToday = $temperaturePrecipitationToday['temperature'];
         $precipitationToday = $temperaturePrecipitationToday['precipitation'];
+        $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
 
         // Save the today precipitation in text file :
         if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitationToday) {
-            $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+            $isOkSave = setInFile($lastWateringsFilename, $toDay);
         }
 
         // Get delay since last watering :
@@ -42,7 +43,7 @@ function waterTheGarden()
             // Send a goo notification :
             if ($isOkOpen !== false) {
                 // Save the date of this watering :
-                $isOkSave = setInFile(LAST_WATERINGS_FILENAME, $toDay);
+                $isOkSave = setInFile($lastWateringsFilename, $toDay);
 
                 $dateNow = new DateTime('NOW');
                 sendNotification(
@@ -131,7 +132,8 @@ function getDelaySinceLastWatering($dateTime)
     $delaySinceLastWatering = 0;
 
     // Get existing content :
-    $contentJson = file_get_contents(LAST_WATERINGS_FILENAME);
+    $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
+    $contentJson = file_get_contents($lastWateringsFilename);
     if ($contentJson !== false) {
         $content = json_decode($contentJson, true);
         if (!empty($content)) {
@@ -149,7 +151,7 @@ function getDelaySinceLastWatering($dateTime)
             $delaySinceLastWatering = $maxInterval;
         }
     } else {
-        sendNotification('Cannot get content from file ' . LAST_WATERINGS_FILENAME);
+        sendNotification('Cannot get content from file ' . $lastWateringsFilename);
     }
 
     return $delaySinceLastWatering;
