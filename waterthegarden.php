@@ -129,7 +129,7 @@ function openThenCloseThePump($delayOfWatering)
  */
 function getDelaySinceLastWatering($dateTime)
 {
-    $delaySinceLastWatering = 0;
+    $delaySinceLastWatering = false;
 
     // Get existing content :
     $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
@@ -204,7 +204,8 @@ function getDelayOfWatering($temperature, $delaySinceLastWatering)
 {
     $delayOfWatering = 0;
 
-    if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_START_WATERING <= $temperature) {
+    if ((DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering || $delaySinceLastWatering === false)
+        && TEMPERATURE_FOR_START_WATERING <= $temperature) {
         $v = (DELAY_WATERING_MAX - DELAY_WATERING_MIN) / (TEMPERATURE_FOR_DELAY_WATERING_MAX - TEMPERATURE_FOR_START_WATERING);
         $a = (DELAY_WATERING_MAX - DELAY_WATERING_MIN + TEMPERATURE_FOR_START_WATERING * $v) / TEMPERATURE_FOR_DELAY_WATERING_MAX;
         $b = DELAY_WATERING_MIN - TEMPERATURE_FOR_START_WATERING * $v;
