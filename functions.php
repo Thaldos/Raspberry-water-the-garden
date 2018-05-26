@@ -13,8 +13,7 @@ const LAST_WATERINGS_FILENAME = 'lastwaterings.txt';
  * The delay is computed from the today temperature and the delay since last watering.
  * The last watering is a raining day or a Raspberry Pi watering.
  */
-function waterTheGarden()
-{
+function waterTheGarden() {
     // Get today date :
     $dateToDay = new DateTime('NOW');
     $toDay = $dateToDay->format(DATE_FORMAT);
@@ -61,13 +60,15 @@ function waterTheGarden()
                     "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
                 );
             } else {
-                sendNotification('The garden has probably not been watered today because ' .
+                sendNotification(
+                    'The garden has probably not been watered today because ' .
                     ' a error occurred during handling the interruptor. It would be a good idea ' .
                     ' the go to check the hardware system.'
                 );
             }
         } else {
-            sendNotification("The garden hasn't been watered today. \n" .
+            sendNotification(
+                "The garden hasn't been watered today. \n" .
                 "Today temperature : " . $temperatureToday . "C \n" .
                 "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
                 "Today precipitation : " . $precipitationToday . "mm \n" .
@@ -77,17 +78,14 @@ function waterTheGarden()
             );
         }
     } else {
-        sendNotification('The garden hasn\'t been watered today because cannot get the today temperature ' .
-            ' and precipitation from APIXU.'
-        );
+        sendNotification('The garden hasn\'t been watered today because cannot get the today temperature and precipitation from APIXU.');
     }
 }
 
 /**
- *
+ * Open the interruptor during the DELAY_WATERING_MIN delay.
  */
-function waterTheGardenNow()
-{
+function waterTheGardenNow() {
     // Get today date :
     $dateToDay = new DateTime('NOW');
     $toDay = $dateToDay->format(DATE_FORMAT);
@@ -109,7 +107,8 @@ function waterTheGardenNow()
             "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
         );
     } else {
-        sendNotification('The garden has probably not been watered today because ' .
+        sendNotification(
+            'The garden has probably not been watered today because ' .
             ' a error occurred during handling the interruptor. It would be a good idea ' .
             ' the go to check the hardware system.'
         );
@@ -117,10 +116,12 @@ function waterTheGardenNow()
 }
 
 /**
+ * Open then close the interruptor.
+ * Return false if error occurred, true else.
  *
+ * @return bool
  */
-function openThenCloseThePump($delayOfWatering)
-{
+function openThenCloseThePump($delayOfWatering) {
     $isOk = false;
 
     // Initialize the pin :
@@ -160,10 +161,13 @@ function openThenCloseThePump($delayOfWatering)
 }
 
 /**
+ * Return the delay in days between the last watering day and the given date.
+ *
+ * @param DateTime $dateTime
+ *
  * @return int
  */
-function getDelaySinceLastWatering($dateTime)
-{
+function getDelaySinceLastWatering($dateTime) {
     $delaySinceLastWatering = 1000;
 
     // Get existing content :
@@ -194,10 +198,12 @@ function getDelaySinceLastWatering($dateTime)
 
 
 /**
+ * Store in the given file a entry with the given date.
+ * Return false if error occurred, true else.
  *
+ * @return bool
  */
-function setInFile($fileName, $date)
-{
+function setInFile($fileName, $date) {
     $isOk = true;
 
     // Get existing content :
@@ -233,10 +239,11 @@ function setInFile($fileName, $date)
 }
 
 /**
+ * Get the delay computed with the given temperature and the given delay since last watering.
  *
+ * @return int
  */
-function getDelayOfWatering($temperature, $delaySinceLastWatering)
-{
+function getDelayOfWatering($temperature, $delaySinceLastWatering) {
     $delayOfWatering = 0;
 
     if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_START_WATERING <= $temperature) {
@@ -255,10 +262,12 @@ function getDelayOfWatering($temperature, $delaySinceLastWatering)
 }
 
 /**
+ * Return the temperature and precipitation of given date, with the APIXU api.
+ * Return false if error occurred, true else.
  *
+ * @return array|bool
  */
-function getTemperaturePrecipitation($date)
-{
+function getTemperaturePrecipitation($date) {
     $temperaturePrecipitation = false;
 
     // Get weather from APIXU  :
@@ -293,8 +302,10 @@ function getTemperaturePrecipitation($date)
                 sendNotification('Cannot get forecast and forecastday properties from APIXU response');
             }
         } else {
-            sendNotification('Error from the APIXU response.' .
-                ' Code : ' . $response->error->code . ', message : ' . $response->error->message);
+            sendNotification(
+                'Error from the APIXU response.' .
+                ' Code : ' . $response->error->code . ', message : ' . $response->error->message
+            );
         }
     } else {
         sendNotification('Cannot get response from APIXU');
@@ -306,8 +317,7 @@ function getTemperaturePrecipitation($date)
 /**
  * Send notification in terminal and by email.
  */
-function sendNotification($message)
-{
+function sendNotification($message) {
     echo $message;
     mail(EMAIL_TO, 'Raspberry garden watering notification', $message);
 }
