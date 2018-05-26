@@ -199,4 +199,14 @@ Your Raspberry pi will check every day at 23pm if your garden need to be watered
 <br>
 
 ## Note
+You can run manually the watering by typing in your Rapsberry Pi terminal :
+
+```
+sudo php /home/pi/Raspberry-water-the-garden/waterthegardennow.php 
+```
+The garden will be watered during the delay defined by `DELAY_WATERING_MIN` in `config.php`.
+
+<br>
+
+## Thanks
 Special thanks to my lovely wife for the logic contained in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.
