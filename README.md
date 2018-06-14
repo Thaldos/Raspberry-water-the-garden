@@ -41,24 +41,6 @@ Insert the SD cart in your Raspberry Pi and start it.
 Follow the installations steps.
 
 ### Installation of PHP 7
-#### Solution 1 
-On your Raspberry, open a terminal and type :
-
-<code>apt-get install apt-transport-https lsb-release ca-certificates</code>
-
-<code>wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg</code>
-
-<code>echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list</code>
-
-<code>apt-get update</code>
-
-<code>apt install --no-install-recommends php7.1 libapache2-mod-php7.1 php7.1-mysql php7.1-curl php7.1-json php7.1-gd php7.1-mcrypt php7.1-msgpack php7.1-memcached php7.1-intl php7.1-sqlite3 php7.1-gmp php7.1-geoip php7.1-mbstring php7.1-redis php7.1-xml php7.1-zip</code>
-
-Test by typing <code>php -v</code> in your terminal.
-
-#### An other solution
-If an error occurred, try this :
-
 <code>nano /etc/apt/sources.list</code> 
 
 Uncomment the line : 
@@ -149,9 +131,12 @@ It should be the same.
 
 
 ### Installation of VNC server on the Raspberry
-To easily access to your Raspberry every time, you should install VNC. You have to install VNC server on your Raspberry and VNC viewer on you desktop. Follow this good tutorial:
+To easily access to your Raspberry every time, you should use VNC. You have to enable VNC server on your Raspberry and install VNC viewer on you desktop.
 
-https://www.raspberrypi.org/forums/viewtopic.php?t=123457
+Menu > Preference > Raspberry configuration > Interfaces > Enable VNC
+
+
+[![Raspberry VNC](https://image.ibb.co/cMPMny/raspberry_vnc.jpg)](https://image.ibb.co/cMPMny/raspberry_vnc.jpg)
 
 ### Installation of VNC viewer on your desktop
 https://www.realvnc.com/en/connect/download/viewer/
@@ -164,6 +149,17 @@ Launch VNC viewer and add a new connection to `192.168.1.201:1`
 Follow this good tutorial:
 
 https://hotfirenet.com/blog/1704-envoyer-mail-depuis-le-raspberry-pi/ (French link)
+
+If, like me, you use gmail, this is a good configuration :
+```
+hostname=anexistingwebdomain.com
+root=monLogin@gmail.com
+mailhub=smtp.gmail.com:587
+AuthUser= monLogin@gmail.com
+AuthPass=monbeauPaSsWoRd
+FromLineOverride=YES
+UseSTARTTLS=YES
+```
 
 <br>
     
