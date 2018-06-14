@@ -23,15 +23,15 @@ function waterTheGarden() {
     if ($temperaturePrecipitationToday !== false) {
         $temperatureToday = $temperaturePrecipitationToday['temperature'];
         $precipitationToday = $temperaturePrecipitationToday['precipitation'];
-        $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
+        $lastWateringsFilename = dirname(__FILE__) . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
 
         // Save the today precipitation in text file :
-        if (QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitationToday) {
+        if (PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitationToday) {
             $isOkSave = setInFile($lastWateringsFilename, $toDay);
         }
 
         // Get delay since last watering :
-        $delaySinceLastWatering = getDelaySinceLastWatering($dateToDay);
+        $delaySinceLastWatering = getDelaySinceLastWatering($lastWateringsFilename, $dateToDay);
 
         // Get watering time :
         $delayOfWatering = getDelayOfWatering($temperatureToday, $delaySinceLastWatering);
@@ -45,14 +45,13 @@ function waterTheGarden() {
             if ($isOkOpen !== false) {
                 // Save the date of this watering :
                 $isOkSave = setInFile($lastWateringsFilename, $toDay);
-
                 $dateNow = new DateTime('NOW');
                 sendNotification(
                     "The garden have been successfully watered today. \n" .
                     "Today temperature : " . $temperatureToday . "C \n" .
-                    "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
+                    "Temperature for start watering : " . TEMPERATURE_FOR_WATERING_MIN . "C \n" .
                     "Today precipitation : " . $precipitationToday . "mm \n" .
-                    "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
+                    "Quantity of precipitation for detect a raining day : " . PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
                     "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
                     "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n".
                     "Delay of watering : " . $delayOfWatering . "min \n" .
@@ -70,9 +69,9 @@ function waterTheGarden() {
             sendNotification(
                 "The garden hasn't been watered today. \n" .
                 "Today temperature : " . $temperatureToday . "C \n" .
-                "Temperature for start watering : " . TEMPERATURE_FOR_START_WATERING . "C \n" .
+                "Temperature for start watering : " . TEMPERATURE_FOR_WATERING_MIN . "C \n" .
                 "Today precipitation : " . $precipitationToday . "mm \n" .
-                "Quantity of precipitation for detect a raining day : " . QUANTITY_OF_PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
+                "Quantity of precipitation for detect a raining day : " . PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
                 "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
                 "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n"
             );
@@ -96,9 +95,8 @@ function waterTheGardenNow() {
     // Send a notification :
     if ($isOkOpen !== false) {
         // Save the date of this watering :
-        $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
+        $lastWateringsFilename = dirname(__FILE__) . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
         $isOkSave = setInFile($lastWateringsFilename, $toDay);
-
         $dateNow = new DateTime('NOW');
         sendNotification(
             "The garden have been successfully manually watered today. \n" .
@@ -163,15 +161,15 @@ function openThenCloseThePump($delayOfWatering) {
 /**
  * Return the delay in days between the last watering day and the given date.
  *
+ * @param string $lastWateringsFilename
  * @param DateTime $dateTime
  *
  * @return int
  */
-function getDelaySinceLastWatering($dateTime) {
+function getDelaySinceLastWatering($lastWateringsFilename, $dateTime) {
     $delaySinceLastWatering = 1000;
 
     // Get existing content :
-    $lastWateringsFilename = getcwd() . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
     $contentJson = file_get_contents($lastWateringsFilename);
     if ($contentJson !== false) {
         $content = json_decode($contentJson, true);
@@ -246,10 +244,10 @@ function setInFile($fileName, $date) {
 function getDelayOfWatering($temperature, $delaySinceLastWatering) {
     $delayOfWatering = 0;
 
-    if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_START_WATERING <= $temperature) {
-        $v = (DELAY_WATERING_MAX - DELAY_WATERING_MIN) / (TEMPERATURE_FOR_DELAY_WATERING_MAX - TEMPERATURE_FOR_START_WATERING);
-        $a = (DELAY_WATERING_MAX - DELAY_WATERING_MIN + TEMPERATURE_FOR_START_WATERING * $v) / TEMPERATURE_FOR_DELAY_WATERING_MAX;
-        $b = DELAY_WATERING_MIN - TEMPERATURE_FOR_START_WATERING * $v;
+    if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_WATERING_MIN <= $temperature) {
+        $v = (DELAY_WATERING_MAX - DELAY_WATERING_MIN) / (TEMPERATURE_FOR_WATERING_MAX - TEMPERATURE_FOR_WATERING_MIN);
+        $a = (DELAY_WATERING_MAX - DELAY_WATERING_MIN + TEMPERATURE_FOR_WATERING_MIN * $v) / TEMPERATURE_FOR_WATERING_MAX;
+        $b = DELAY_WATERING_MIN - TEMPERATURE_FOR_WATERING_MIN * $v;
         $delayOfWatering = $a * $temperature + $b;
 
         // Clamp with max delay :
