@@ -141,7 +141,8 @@ Menu > Preference > Raspberry configuration > Interfaces > Enable VNC
 ### Installation of VNC viewer on your desktop
 https://www.realvnc.com/en/connect/download/viewer/
 
-Launch VNC viewer and add a new connection to `192.168.1.201:1`
+Launch VNC viewer and add a new connection to `192.168.1.201`, with the user `pi` and password `raspberry`.
+
 
 > Important note: be sure te be on same Wi-Fi network on both sides.
 
