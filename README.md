@@ -21,7 +21,7 @@ Total: 190€
 <br>
 
 
-## Hardware
+## Hardware 
 Connect your devices like this:
 
 [![Hardware](https://image.ibb.co/gxQa5o/Raspberry_pump_2.jpg)](https://image.ibb.co/gxQa5o/Raspberry_pump_2.jpg)
