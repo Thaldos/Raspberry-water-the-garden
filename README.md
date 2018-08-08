@@ -162,7 +162,7 @@ FromLineOverride=YES
 UseSTARTTLS=YES
 ```
 
-<br>
+<br> 
     
 ## Project installation
 ### Copying of the project files on your Raspberry pi
