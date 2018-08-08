@@ -9,14 +9,17 @@ You'll need:
 * [(1) Raspberry power supply (5V 2.5A)](https://www.amazon.fr/SainSmart-Certified-Raspberry-Adaptateur-Certification/dp/B01LHE8DBU/ref=sr_1_cc_2?s=aps&ie=UTF8&qid=1513517344&sr=1-2-catcorr&keywords=raspberry+3+Power+supply) (8€)
 * [(2) Raspberry Pi 3 model B](https://www.adafruit.com/product/3055) (35€)
 * [Raspberry case + heat sink](https://www.amazon.fr/gp/product/B01CPCMWWO/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1) (7€)
-* [(3) Relay board module](https://www.amazon.fr/gp/product/B019GTTS3K/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1) (2€)
+* [(3) Relay board 5V - 220V](https://www.amazon.fr/gp/product/B019GTTS3K/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1) (2€)
+* [(4) Relay board 220V - 220V](https://www.domomat.com/23422-contacteur-tesys-lc1d-bobine-230vac-3p-ac3-440v-4kw-3f--schneider-electric-lc1d09p7.html) (21€)
 * [SD card 16 Go](https://www.amazon.fr/gp/product/B073S9SFK2/ref=oh_aui_detailpage_o08_s00?ie=UTF8&psc=1) (11€)
-* [(4) Pump](https://www.leroymerlin.fr/v3/p/produits/pompe-arrosage-manuelle-einhell-gc-gp-6538-3800-l-h-e1500896297) (60€)
 * [(5) Vertical Tank Water Level Sensor](https://www.amazon.com/gp/product/B016Q6S2VU/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1) (7€)
 * [(6) Water tank](https://www.leboncoin.fr/) (60€)
+* [(7) Pump](https://www.leroymerlin.fr/v3/p/produits/pompe-arrosage-manuelle-einhell-gc-gp-6538-3800-l-h-e1500896297) (60€)
+* [(8) Solenoid valve (12V 2A AC)](https://www.amazon.fr/U-S-Solid-%C3%89lectrovanne-Normalement-entra%C3%AEnement/dp/B01MS7H1ZP/ref=sr_1_7?ie=UTF8&qid=1533749267&sr=8-7&keywords=Solenoid+valve) (24€)
+* [Solenoid valve power supply 12V 2A AC](https://www.amazon.fr/Eleidgs-Adaptateur-Chargeur-Alimentation-Imprimante/dp/B06Y1MBYDW/ref=sr_1_1_sspa?s=electronics&ie=UTF8&qid=1533749358&sr=1-1-spons&keywords=power+supply+12V+2A+AC&psc=1) (9€)
 * Patience and passion (prices not yet available)
 
-Total: 190€
+Total: 244€
 
 <br>
 
@@ -24,7 +27,7 @@ Total: 190€
 ## Hardware 
 Connect your devices like this:
 
-[![Hardware](https://image.ibb.co/gxQa5o/Raspberry_pump_2.jpg)](https://image.ibb.co/gxQa5o/Raspberry_pump_2.jpg)
+[![Hardware](https://image.ibb.co/ekqYtz/Raspberry_pump_idee_4.jpg)](https://image.ibb.co/ekqYtz/Raspberry_pump_idee_4.jpg)
 
 <br>
 
