@@ -112,7 +112,7 @@ function waterTheGardenNow() {
         sendNotification(
             'The garden has probably not been watered today because ' .
             'a error occurred during handling the relay module. It would be a good idea ' .
-            'to go to check the hardware system.' .
+            'to go to check the hardware system.\n' .
             'Error : ' . $isOkOpen
         );
     }
