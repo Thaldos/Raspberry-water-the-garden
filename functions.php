@@ -136,7 +136,7 @@ function openThenCloseCarefullyThePump($delayOfWatering) {
         $isOkOpen = openThenCloseThePump(DELAY_MAX_CONSECUTIVE_RUNNING);
         $secondes = DELAY_TO_WAIT_BETWEEN_RUNNING * 60;
         $isOkSleep = sleep($secondes);
-        $isOk = $isOk && $isOkOpen && $isOkSleep;
+        $isOk = $isOk && $isOkOpen && ($isOkSleep !== false);
     }
 
     // Watering of the eventually rest of delay of watering :
