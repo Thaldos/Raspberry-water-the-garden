@@ -15,9 +15,11 @@ const PRECIPITATION_FOR_DETECT_A_RAINING_DAY = 2;
 const DELAY_MIN_SINCE_LAST_WATERING = 2;
 
 // Delay max of consecutive pump and valve running, in minutes. In order to avoid pump or valve overheated :
+// /!\ Use only int.
 const DELAY_MAX_CONSECUTIVE_RUNNING = 15;
 
 // Waiting delay to avoid pump or valve overheated, in minutes :
+// /!\ Use only int.
 const DELAY_TO_WAIT_BETWEEN_RUNNING = 15;
 
 // APIXU infos :
