@@ -134,7 +134,8 @@ function openThenCloseCarefullyThePump($delayOfWatering) {
     $nbrOfWateringRound = floor($delayOfWatering / DELAY_MAX_CONSECUTIVE_RUNNING);
     for ($i = 0; $i < $nbrOfWateringRound; $i++) {
         $isOkOpen = openThenCloseThePump(DELAY_MAX_CONSECUTIVE_RUNNING);
-        $isOkSleep = sleep(DELAY_TO_WAIT_BETWEEN_RUNNING);
+        $secondes = DELAY_TO_WAIT_BETWEEN_RUNNING * 60;
+        $isOkSleep = sleep($secondes);
         $isOk = $isOk && $isOkOpen && $isOkSleep;
     }
 
