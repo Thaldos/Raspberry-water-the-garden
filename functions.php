@@ -13,20 +13,21 @@ const LAST_WATERINGS_FILENAME = 'lastwaterings.txt';
  * The delay is computed from the today temperature and the delay since the last watering.
  * The last watering is a raining day or a Raspberry Pi watering.
  */
-function waterTheGarden() {
+function waterTheGarden()
+{
     // Get today date :
     $dateToDay = new DateTime('NOW');
     $toDay = $dateToDay->format(DATE_FORMAT);
 
-    // Get the max temperature and total precipitation of today :
-    $temperaturePrecipitationToday = getTemperaturePrecipitation($toDay);
-    if ($temperaturePrecipitationToday !== false) {
-        $temperatureToday = $temperaturePrecipitationToday['temperature'];
-        $precipitationToday = $temperaturePrecipitationToday['precipitation'];
+    // Get the max temperature and total precipitation of last 24h :
+    $tempAndPrecip = getLast24hTemperatureAndPrecipitation();
+    if ($tempAndPrecip !== false) {
+        $temperature = $tempAndPrecip['tempMax'];
+        $precipitation = $tempAndPrecip['precipTotal'];
         $lastWateringsFilename = dirname(__FILE__) . DIRECTORY_SEPARATOR . LAST_WATERINGS_FILENAME;
 
         // Save the today precipitation in text file :
-        if (PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitationToday) {
+        if (PRECIPITATION_FOR_DETECT_A_RAINING_DAY < $precipitation) {
             $isOkSave = setInFile($lastWateringsFilename, $toDay);
         }
 
@@ -34,7 +35,7 @@ function waterTheGarden() {
         $delaySinceLastWatering = getDelaySinceLastWatering($lastWateringsFilename, $dateToDay);
 
         // Get watering time :
-        $delayOfWatering = getDelayOfWatering($temperatureToday, $delaySinceLastWatering);
+        $delayOfWatering = getDelayOfWatering($temperature, $delaySinceLastWatering);
 
         // Recheck to be safe (but already done in getDelayOfWatering()) :
         if (DELAY_WATERING_MIN <= $delayOfWatering && $delayOfWatering <= DELAY_WATERING_MAX) {
@@ -48,14 +49,14 @@ function waterTheGarden() {
                 $dateNow = new DateTime('NOW');
                 sendNotification(
                     "The garden have been successfully watered today. \n" .
-                    "Today temperature : " . $temperatureToday . "C \n" .
+                    "Today temperature : " . $temperature . "C \n" .
                     "Temperature for start watering : " . TEMPERATURE_FOR_WATERING_MIN . "C \n" .
-                    "Today precipitation : " . $precipitationToday . "mm \n" .
+                    "Today precipitation : " . $precipitation . "mm \n" .
                     "Quantity of precipitation for detect a raining day : " . PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
                     "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
-                    "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n".
-                    "Delay max of consecutive pump and valve running : " . DELAY_MAX_CONSECUTIVE_RUNNING . " minutes \n".
-                    "Waiting delay to avoid pump or valve overheated : " . DELAY_TO_WAIT_BETWEEN_RUNNING . " minutes \n".
+                    "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n" .
+                    "Delay max of consecutive pump and valve running : " . DELAY_MAX_CONSECUTIVE_RUNNING . " minutes \n" .
+                    "Waiting delay to avoid pump or valve overheated : " . DELAY_TO_WAIT_BETWEEN_RUNNING . " minutes \n" .
                     "Delay of watering : " . $delayOfWatering . "min \n" .
                     "Date of watering start : " . $dateToDay->format('Y-m-d H:i:s') . "\n" .
                     "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
@@ -70,9 +71,9 @@ function waterTheGarden() {
         } else {
             sendNotification(
                 "The garden hasn't been watered today. \n" .
-                "Today temperature : " . $temperatureToday . "C \n" .
+                "Today temperature : " . $temperature . "C \n" .
                 "Temperature for start watering : " . TEMPERATURE_FOR_WATERING_MIN . "C \n" .
-                "Today precipitation : " . $precipitationToday . "mm \n" .
+                "Today precipitation : " . $precipitation . "mm \n" .
                 "Quantity of precipitation for detect a raining day : " . PRECIPITATION_FOR_DETECT_A_RAINING_DAY . "mm \n" .
                 "Delay since last watering : " . $delaySinceLastWatering . " days \n" .
                 "Delay minimal since last watering : " . DELAY_MIN_SINCE_LAST_WATERING . " days \n"
@@ -86,7 +87,8 @@ function waterTheGarden() {
 /**
  * Open the pump during the DELAY_WATERING_MIN delay.
  */
-function waterTheGardenNow() {
+function waterTheGardenNow()
+{
     // Get today date :
     $dateToDay = new DateTime('NOW');
     $toDay = $dateToDay->format(DATE_FORMAT);
@@ -102,8 +104,8 @@ function waterTheGardenNow() {
         $dateNow = new DateTime('NOW');
         sendNotification(
             "The garden have been successfully manually watered today. \n" .
-            "Delay max of consecutive pump and valve running : " . DELAY_MAX_CONSECUTIVE_RUNNING . " minutes \n".
-            "Waiting delay to avoid pump or valve overheated : " . DELAY_TO_WAIT_BETWEEN_RUNNING . " minutes \n".
+            "Delay max of consecutive pump and valve running : " . DELAY_MAX_CONSECUTIVE_RUNNING . " minutes \n" .
+            "Waiting delay to avoid pump or valve overheated : " . DELAY_TO_WAIT_BETWEEN_RUNNING . " minutes \n" .
             "Delay of watering : " . DELAY_WATERING_MIN . "min \n" .
             "Date of watering start : " . $dateToDay->format('Y-m-d H:i:s') . "\n" .
             "Date of watering end : " . $dateNow->format('Y-m-d H:i:s') . "\n"
@@ -127,7 +129,8 @@ function waterTheGardenNow() {
  *
  * @return bool
  */
-function openThenCloseCarefullyThePump($delayOfWatering) {
+function openThenCloseCarefullyThePump($delayOfWatering)
+{
     $isOk = true;
 
     // Get number of sub round of watering needed to avoid overheating :
@@ -155,7 +158,8 @@ function openThenCloseCarefullyThePump($delayOfWatering) {
  *
  * @return bool
  */
-function openThenCloseThePump($delayOfWatering) {
+function openThenCloseThePump($delayOfWatering)
+{
     $isOk = false;
 
     // Initialize the pin :
@@ -202,7 +206,8 @@ function openThenCloseThePump($delayOfWatering) {
  *
  * @return int
  */
-function getDelaySinceLastWatering($lastWateringsFilename, $dateTime) {
+function getDelaySinceLastWatering($lastWateringsFilename, $dateTime)
+{
     $delaySinceLastWatering = 1000;
 
     // Get existing content :
@@ -237,7 +242,8 @@ function getDelaySinceLastWatering($lastWateringsFilename, $dateTime) {
  *
  * @return bool
  */
-function setInFile($fileName, $date) {
+function setInFile($fileName, $date)
+{
     $isOk = true;
 
     // Get existing content :
@@ -277,7 +283,8 @@ function setInFile($fileName, $date) {
  *
  * @return float
  */
-function getDelayOfWatering($temperature, $delaySinceLastWatering) {
+function getDelayOfWatering($temperature, $delaySinceLastWatering)
+{
     $delayOfWatering = 0;
 
     if (DELAY_MIN_SINCE_LAST_WATERING <= $delaySinceLastWatering && TEMPERATURE_FOR_WATERING_MIN <= $temperature) {
@@ -296,16 +303,21 @@ function getDelayOfWatering($temperature, $delaySinceLastWatering) {
 }
 
 /**
- * Return the temperature and precipitation of given date, with the APIXU api.
- * Return false if error occurred, true else.
+ * Return the max temperature and total of precipitation of last 24h.
+ * Return false if error occurred.
  *
  * @return array|bool
  */
-function getTemperaturePrecipitation($date) {
-    $temperaturePrecipitation = false;
+function getLast24hTemperatureAndPrecipitation()
+{
+    $tempAndPrecip = false;
 
     // Get weather from APIXU  :
-    $url = 'http://api.apixu.com/v1/history.json?key=' . APIXU_KEY . '&q=' . APIXU_CITY . '&dt=' . $date;
+    $startDate = new DateTime();
+    $startDate->modify('-24 hours');
+    $endDate = new DateTime();
+    $url = 'https://api.weatherbit.io/v2.0/history/hourly?city=' . CITY . '&key=' . KEY .
+        '&start_date=' . $startDate->format(DATE_FORMAT) . '&end_date=' . $endDate->format(DATE_FORMAT);
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -315,43 +327,39 @@ function getTemperaturePrecipitation($date) {
     // Check reponse :
     if (!empty($response)) {
         if (!property_exists($response, 'error')) {
-            if (property_exists($response, 'forecast') && property_exists($response->forecast, 'forecastday')) {
-                $forecastday = reset($response->forecast->forecastday);
-                if ($forecastday !== false) {
-                    if (property_exists($forecastday, 'day') &&
-                        property_exists($forecastday->day, 'maxtemp_c') &&
-                        property_exists($forecastday->day, 'totalprecip_mm')) {
-                        // Save max temp and precipitation :
-                        $temperaturePrecipitation = array(
-                            'temperature'   => $forecastday->day->maxtemp_c,
-                            'precipitation' => $forecastday->day->totalprecip_mm
-                        );
-                    } else {
-                        sendNotification('Cannot get maxtemp_c or totalprecip_mm properties from APIXU response');
+            if (property_exists($response, 'data')) {
+                $precipTotal = 0;
+                $tempMax = 0;
+                foreach ($response->data as $data) {
+                    if (property_exists($data, 'temp') && property_exists($data, 'precip')) {
+                        $precipTotal += $data->precip;
+                        if ($tempMax < $data->temp) {
+                            $tempMax = $data->temp;
+                        }
                     }
-                } else {
-                    sendNotification('Cannot get forecastday value from APIXU response');
                 }
+                $tempAndPrecip = [
+                    'precipTotal' => $precipTotal,
+                    'tempMax'     => $tempMax
+                ];
             } else {
-                sendNotification('Cannot get forecast and forecastday properties from APIXU response');
+                sendNotification('Cannot get data properties from API response');
             }
         } else {
-            sendNotification(
-                'Error from the APIXU response.' .
-                ' Code : ' . $response->error->code . ', message : ' . $response->error->message
-            );
+            sendNotification('Error returned from API : ' . $response->error);
         }
     } else {
-        sendNotification('Cannot get response from APIXU');
+        sendNotification('Cannot get response from API. Url : ' . $url);
     }
 
-    return $temperaturePrecipitation;
+    return $tempAndPrecip;
 }
 
 /**
  * Send notification in terminal and by email.
  */
-function sendNotification($message) {
+function sendNotification($message)
+{
     echo $message;
     mail(EMAIL_TO, 'Raspberry garden watering notification', $message);
 }

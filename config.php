@@ -22,10 +22,10 @@ const DELAY_MAX_CONSECUTIVE_RUNNING = 15;
 // /!\ Use only int.
 const DELAY_TO_WAIT_BETWEEN_RUNNING = 15;
 
-// APIXU infos :
-// (The given key is not a miss, the service is free to 10 000 calls by day, so I let you use my personal key)
-const APIXU_KEY = '774e4c6f0eb04258b79165458181105';
-const APIXU_CITY = 'Limoges';
+// API infos (https://www.weatherbit.io/api/weather-history-hourly) :
+// (The given key is not a miss, the service is free, so I let you use my personal key)
+const KEY = '328f1bb7b641435b88fb665f0dd2a0c3';
+const CITY = 'Limoges,FR';
 
 // Email which will receive notifications :
 const EMAIL_TO = 'your@email.com';
