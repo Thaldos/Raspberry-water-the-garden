@@ -79,33 +79,33 @@ class WaterTheGardenService
 							$dateNow = new DateTime();
 							$dayOrDays = $delaySinceLastWatering == 0 ? 'day' : 'days';
 							$this->sendNotification(
-								'The garden have been successfully watered today. \n' .
-								'Today temperature : ' . $todayTemperature . 'C \n' .
-								'Temperature for start watering : ' . Config::TEMPERATURE_FOR_DELAY_MIN . 'C \n' .
-								'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . ' \n' .
-								'Delay minimal between watering : ' . Config::DELAY_MIN_BETWEEN_WATERING . ' ' . $dayOrDays . ' \n' .
-								'Delay max of consecutive pump and valve running : ' . Config::DELAY_MAX_RUNNING . ' minutes \n' .
-								'Waiting delay to avoid pump or valve overheated : ' . Config::DELAY_BETWEEN_RUNNING . ' minutes \n' .
+								"The garden have been successfully watered today. \n" .
+								'Today temperature : ' . $todayTemperature . "C \n" .
+								'Temperature for start watering : ' . Config::TEMPERATURE_FOR_DELAY_MIN . "C \n" .
+								'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . " \n" .
+								'Delay minimal between watering : ' . Config::DELAY_MIN_BETWEEN_WATERING . ' ' . $dayOrDays . " \n" .
+								'Delay max of consecutive pump and valve running : ' . Config::DELAY_MAX_RUNNING . " minutes \n" .
+								'Waiting delay to avoid pump or valve overheated : ' . Config::DELAY_BETWEEN_RUNNING . " minutes \n" .
 								'Delay of watering : ' . $delayForWatering . "min \n" .
-								'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . ' \n' .
-								'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . ' \n'
+								'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
+								'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n"
 							);
 						} else {
 							$this->sendNotification(
-								'The garden has probably not been watered today because  a error occurred during handling the relay module. \n' .
+								"The garden has probably not been watered today because a error occurred during handling the relay module. \n" .
 								'It would be a good idea to check the hardware system.'
 							);
 						}
 					} else {
 						$this->sendNotification(
-							'No watering today because the today temperature (' . $todayTemperature . 'C) was too cold. \n' .
+							"No watering today because the today temperature (' . $todayTemperature . 'C) was too cold. \n" .
 							'The start is defined to ' . Config::TEMPERATURE_FOR_DELAY_MIN . 'C.'
 						);
 					}
 				} else {
 					$dayOrDays = $delaySinceLastWatering == 0 ? 'day' : 'days';
 					$this->sendNotification(
-						'No watering today because the last watering was there was ' . $delaySinceLastWatering . ' ' . $dayOrDays . '. \n' .
+						'No watering today because the last watering was there was ' . $delaySinceLastWatering . ' ' . $dayOrDays . ". \n" .
 						'The delay minimum between watering is defined to ' . Config::DELAY_MIN_BETWEEN_WATERING . ' days.'
 					);
 				}
@@ -143,14 +143,14 @@ class WaterTheGardenService
 			// Send a notification :
 			$dateNow = new DateTime();
 			$this->sendNotification(
-				'The garden have been successfully manually watered today. \n' .
+				"The garden have been successfully manually watered today. \n" .
 				'Delay of watering : ' . Config::DELAY_MIN . "min \n" .
-				'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . ' \n' .
-				'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . ' \n'
+				'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
+				'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n"
 			);
 		} else {
 			$this->sendNotification(
-				'The garden has probably not been watered today because  a error occurred during handling the relay module. \n' .
+				"The garden has probably not been watered today because a error occurred during handling the relay module. \n" .
 				'It would be a good idea to check the hardware system.'
 			);
 		}
