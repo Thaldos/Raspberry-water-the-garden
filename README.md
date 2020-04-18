@@ -171,22 +171,23 @@ UseSTARTTLS=YES
 ### Copying of the project files on your Raspberry pi
 Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-garden/`.
 
-Then Chmod the file `/home/pi/Raspberry-water-the-garden/lastwaterings.txt` to 777.
+Then Chmod the files `/home/pi/Raspberry-water-the-garden/src/temperatures.txt` and `/home/pi/Raspberry-water-the-garden/src/lastwatering.txt` to 777.
 
 ### Customization
-Customize the constants in the `config.php` file.
+Customize the constants in the `src/Config.php` file.
 
-### Download the library vendors 
+### Download the vendors 
 Then type in Raspberry terminal :
 
 ```
-cd /home/pi/Raspberry-water-the-garden/library 
+cd /home/pi/Raspberry-water-the-garden/ 
 composer install
 ```
 
 ### Set the cron tab
-On your Raspberry, in terminal, type `crontab -e` and add that line:
+On your Raspberry, in terminal, type `crontab -e` and add the lines:
 ```
+0 15 * * * sudo php /home/pi/Raspberry-water-the-garden/storecurrenttemperature.php 2>&1
 0 23 * * * sudo php /home/pi/Raspberry-water-the-garden/waterthegarden.php 2>&1
 ```
 
@@ -202,11 +203,20 @@ Your Raspberry pi will check every day at 23pm if your garden need to be watered
 You can run manually the watering by typing in your Rapsberry Pi terminal :
 
 ```
-sudo php /home/pi/Raspberry-water-the-garden/waterthegardennow.php 
+sudo php /home/pi/Raspberry-water-the-garden/waterthegarden.php fixed 
 ```
-The garden will be watered during the delay defined by `DELAY_WATERING_MIN` in `config.php`.
+The garden will be watered during the delay defined by `DELAY_MIN` in `config.php`.
+<br>
+<br>
+<br>
+You can reset the relay by typing in your Rapsberry Pi terminal :
+
+```
+sudo php /home/pi/Raspberry-water-the-garden/waterthegarden.php reset 
+```
+
 
 <br>
 
 ## Thanks
-Special thanks to my lovely wife for the logic contained in the function `getDelayOfWatering($temperature, $delaySinceLastWatering)`.
+Special thanks to my lovely wife for the logic contained in the function `getDelayForWatering($temperature)`.

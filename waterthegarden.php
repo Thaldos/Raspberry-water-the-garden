@@ -1,6 +1,10 @@
 <?php
 
-include_once 'functions.php';
+require __DIR__ . '/vendor/autoload.php';
 
-// Open the pump during the appropriate delay :
-waterTheGarden();
+// Get given mode :
+$mode = $argv[1] ?? WaterTheGardenService::MODE_COMPUTED_DELAY;
+
+// Water the garden :
+$waterTheGardenService = new WaterTheGardenService();
+$waterTheGardenService->waterTheGarden($mode);
