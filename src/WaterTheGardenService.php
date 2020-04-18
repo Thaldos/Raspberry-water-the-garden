@@ -199,37 +199,37 @@ class WaterTheGardenService
 		$isOk = false;
 
 		// Initialize the pin :
-		// $gpio = new GPIO();
-		// $isOkSetup = $gpio->setup(Config::PIN_NUMERO, 'out');
-		// if ($isOkSetup !== false) {
-		// 	// Open the pump :
-		// 	$isOkOutPutOne = $gpio->output(Config::PIN_NUMERO, 1);
-		// 	if ($isOkOutPutOne !== false) {
-		// 		// Wait during the watering time :
-		// 		$seconds = $delayOfWatering * 60;
-		// 		$isOkSleep = sleep($seconds);
-		// 		if ($isOkSleep !== false) {
-		// 			// Close the pump :
-		// 			$isOkOutPutZero = $gpio->output(Config::PIN_NUMERO, 0);
-		// 			if ($isOkOutPutZero !== false) {
-		// 				$isOkUnexport = $gpio->unexportAll();
-		// 				if ($isOkUnexport !== false) {
-		// 					$isOk = true;
-		// 				} else {
-		// 					$this->sendNotification('Cannot unexport the pin numero ' . Config::PIN_NUMERO);
-		// 				}
-		// 			} else {
-		// 				$this->sendNotification('Cannot close the pin numero ' . Config::PIN_NUMERO);
-		// 			}
-		// 		} else {
-		// 			$this->sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
-		// 		}
-		// 	} else {
-		// 		$this->sendNotification('Cannot open the pin numero ' . Config::PIN_NUMERO);
-		// 	}
-		// } else {
-		// 	$this->sendNotification('Cannot initialize the pin numero ' . Config::PIN_NUMERO);
-		// }
+		$gpio = new GPIO();
+		$isOkSetup = $gpio->setup(Config::PIN_NUMERO, 'out');
+		if ($isOkSetup !== false) {
+			// Open the pump :
+			$isOkOutPutOne = $gpio->output(Config::PIN_NUMERO, 1);
+			if ($isOkOutPutOne !== false) {
+				// Wait during the watering time :
+				$seconds = $delayOfWatering * 60;
+				$isOkSleep = sleep($seconds);
+				if ($isOkSleep !== false) {
+					// Close the pump :
+					$isOkOutPutZero = $gpio->output(Config::PIN_NUMERO, 0);
+					if ($isOkOutPutZero !== false) {
+						$isOkUnexport = $gpio->unexportAll();
+						if ($isOkUnexport !== false) {
+							$isOk = true;
+						} else {
+							$this->sendNotification('Cannot unexport the pin numero ' . Config::PIN_NUMERO);
+						}
+					} else {
+						$this->sendNotification('Cannot close the pin numero ' . Config::PIN_NUMERO);
+					}
+				} else {
+					$this->sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
+				}
+			} else {
+				$this->sendNotification('Cannot open the pin numero ' . Config::PIN_NUMERO);
+			}
+		} else {
+			$this->sendNotification('Cannot initialize the pin numero ' . Config::PIN_NUMERO);
+		}
 
 		return $isOk;
 	}
