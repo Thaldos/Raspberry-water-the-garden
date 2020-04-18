@@ -43,7 +43,7 @@ Insert the SD cart in your Raspberry Pi and start it.
 
 Follow the installations steps.
 
-### Installation of PHP 7
+### Installation of PHP 7.3
 <code>nano /etc/apt/sources.list</code> 
 
 Uncomment the line : 
@@ -51,7 +51,7 @@ Uncomment the line :
 
 <code>apt-get update</code> 
 
-<code>apt-get install -t stretch php7.0 php7.0-curl php7.0-gd php7.0-fpm php7.0-cli php7.0-opcache php7.0-mbstring php7.0-xml php7.0-zip</code> 
+<code>apt-get install -t stretch php7.3 php7.3-curl php7.3-gd php7.3-fpm php7.3-cli php7.3-opcache php7.3-mbstring php7.3-xml php7.3-zip</code> 
 
 Test by typing <code>php -v</code> in your terminal. You should have something like :
 
