@@ -105,7 +105,7 @@ class WaterTheGardenService
 				} else {
 					$dayOrDays = $delaySinceLastWatering == 0 ? 'day' : 'days';
 					$this->sendNotification(
-						'No watering today because the last watering was there was ' . $delaySinceLastWatering . ' ' . $dayOrDays . ". \n" .
+						'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. \n" .
 						'The delay minimum between watering is defined to ' . Config::DELAY_MIN_BETWEEN_WATERING . ' days.'
 					);
 				}
