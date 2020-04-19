@@ -77,7 +77,7 @@ class WaterTheGardenService
 
 							// Send a notification :
 							$dateNow = new DateTime();
-							$dayOrDays = $delaySinceLastWatering == 0 ? 'day' : 'days';
+							$dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
 							$this->sendNotification(
 								"The garden have been successfully watered today. \n" .
 								'Today temperature : ' . $todayTemperature . "C \n" .
@@ -103,7 +103,7 @@ class WaterTheGardenService
 						);
 					}
 				} else {
-					$dayOrDays = $delaySinceLastWatering == 0 ? 'day' : 'days';
+					$dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
 					$this->sendNotification(
 						'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. \n" .
 						'The delay minimum between watering is defined to ' . Config::DELAY_MIN_BETWEEN_WATERING . ' days.'
