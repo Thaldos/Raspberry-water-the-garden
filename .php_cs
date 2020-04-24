@@ -1,7 +1,7 @@
 <?php
 
 return PhpCsFixer\Config::create()
-	->setIndent("\t")
+	->setIndent("    ")
     ->setLineEnding("\r\n")
     ->setRules([
         '@PSR2' => true,
