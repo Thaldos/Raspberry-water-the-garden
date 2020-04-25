@@ -92,7 +92,7 @@ class WaterTheGardenService
                                 'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . " \n" .
                                 'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . " minutes \n" .
                                 'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes \n" .
-                                'Delay of watering : ' . $delayForWatering . "min \n" .
+                                'Delay of watering : ' . $delayForWatering . " minutes \n" .
                                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
                                 'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n"
                             );
@@ -104,7 +104,7 @@ class WaterTheGardenService
                         }
                     } else {
                         $this->sendNotification(
-                            'No watering today because the today temperature (' . $todayTemperature . "C) was too low. \n" .
+                            'No watering today because the today temperature was too low : ' . $todayTemperature . "C. \n" .
                             'The start is defined to ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . 'C.'
                         );
                     }
@@ -204,35 +204,38 @@ class WaterTheGardenService
 
         // Initialize the pin :
         $gpio = new GPIO();
-        $isOkSetup = $gpio->setup($_ENV['PIN_NUMERO'], 'out');
+        $isOkSetup = $gpio->setup($_ENV['RELAY_PIN_NUMERO'], 'out');
         if ($isOkSetup !== false) {
             // Open the pump :
-            $isOkOutPutOne = $gpio->output($_ENV['PIN_NUMERO'], 1);
+            $isOkOutPutOne = $gpio->output($_ENV['RELAY_PIN_NUMERO'], 1);
             if ($isOkOutPutOne !== false) {
-                // Wait during the watering time :
-                $seconds = $delayOfWatering * 60;
-                $isOkSleep = sleep($seconds);
+                $delayOfWateringInSeconds = $delayOfWatering * 60;
+                $isOkSleep = sleep($delayOfWateringInSeconds);
+
+                //  Wait during the watering time and get the flowmeter data :
+                
+
                 if ($isOkSleep !== false) {
                     // Close the pump :
-                    $isOkOutPutZero = $gpio->output($_ENV['PIN_NUMERO'], 0);
+                    $isOkOutPutZero = $gpio->output($_ENV['RELAY_PIN_NUMERO'], 0);
                     if ($isOkOutPutZero !== false) {
                         $isOkUnexport = $gpio->unexportAll();
                         if ($isOkUnexport !== false) {
                             $isOk = true;
                         } else {
-                            $this->sendNotification('Cannot unexport the pin numero ' . $_ENV['PIN_NUMERO']);
+                            $this->sendNotification('Cannot unexport the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
                         }
                     } else {
-                        $this->sendNotification('Cannot close the pin numero ' . $_ENV['PIN_NUMERO']);
+                        $this->sendNotification('Cannot close the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
                     }
                 } else {
                     $this->sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
                 }
             } else {
-                $this->sendNotification('Cannot open the pin numero ' . $_ENV['PIN_NUMERO']);
+                $this->sendNotification('Cannot open the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
             }
         } else {
-            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['PIN_NUMERO']);
+            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
         }
 
         return $isOk;
@@ -379,6 +382,37 @@ class WaterTheGardenService
         }
 
         return $temperature;
+    }
+
+    /**
+     * Wait during the given period and get the number of flow pulses measured by the flowmeter during this period.
+     * The period must be in seconds.
+     */
+    public function waitAndGetNumberOfFlowPulses(int $period): int
+    {
+        $numberOfFlowPulses = 0;
+
+        // Initialize the pin :
+        $gpio = new GPIO();
+        $isOkSetup = $gpio->setup($_ENV['FLOW_METER_PIN_NUMERO'], 'in');
+        if ($isOkSetup !== false) {
+            // Each seconds :
+            $start = \time();
+            $diff = 0;
+            while ($diff < $period) {
+                $diff = \time() - $start;
+                \sleep(1);
+                echo $diff . ": ";
+
+                // Read the pin :
+                $input = $gpio->input($_ENV['FLOW_METER_PIN_NUMERO']);
+                echo $input . " \n";
+            }
+        } else {
+            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['FLOW_METER_PIN_NUMERO']);
+        }
+
+        return $numberOfFlowPulses;
     }
 
     /**
