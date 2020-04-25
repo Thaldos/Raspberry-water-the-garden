@@ -284,7 +284,7 @@ class WaterTheGardenService
         $putReturn = file_put_contents($filePath, $newContent);
         if ($putReturn === false) {
             $isOk = false;
-            $this->$this->sendNotification('Cannot save ' . $todayStr . ' - ' . $value . ' in file ' . $filePath);
+            $this->sendNotification('Cannot save ' . $todayStr . ' - ' . $value . ' in file ' . $filePath);
         }
 
         return $isOk;
@@ -372,10 +372,10 @@ class WaterTheGardenService
             if (key_exists('main', $weatherData) && key_exists('temp', $weatherData['main'])) {
                 $temperature = $weatherData['main']['temp'];
             } else {
-                $this->$this->sendNotification('Cannot get the temp value from the API response.');
+                $this->sendNotification('Cannot get the temp value from the API response.');
             }
         } else {
-            $this->$this->sendNotification('Cannot get the today from API. Status code : ' . $statusCode . ', ' . $response->getContent());
+            $this->sendNotification('Cannot get the today from API. Status code : ' . $statusCode . ', ' . $response->getContent());
         }
 
         return $temperature;
