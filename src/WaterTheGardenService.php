@@ -203,11 +203,12 @@ class WaterTheGardenService
         $isOk = false;
 
         // Initialize the pin :
+        $pin = (int) $_ENV['RELAY_PIN_NUMERO'];
         $gpio = new GPIO();
-        $isOkSetup = $gpio->setup($_ENV['RELAY_PIN_NUMERO'], 'out');
+        $isOkSetup = $gpio->setup($pin, 'out');
         if ($isOkSetup !== false) {
             // Open the pump :
-            $isOkOutPutOne = $gpio->output($_ENV['RELAY_PIN_NUMERO'], 1);
+            $isOkOutPutOne = $gpio->output($pin, 1);
             if ($isOkOutPutOne !== false) {
                 $delayOfWateringInSeconds = $delayOfWatering * 60;
                 $isOkSleep = sleep($delayOfWateringInSeconds);
@@ -217,25 +218,25 @@ class WaterTheGardenService
 
                 if ($isOkSleep !== false) {
                     // Close the pump :
-                    $isOkOutPutZero = $gpio->output($_ENV['RELAY_PIN_NUMERO'], 0);
+                    $isOkOutPutZero = $gpio->output($pin, 0);
                     if ($isOkOutPutZero !== false) {
                         $isOkUnexport = $gpio->unexportAll();
                         if ($isOkUnexport !== false) {
                             $isOk = true;
                         } else {
-                            $this->sendNotification('Cannot unexport the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
+                            $this->sendNotification('Cannot unexport the pin numero ' . $pin);
                         }
                     } else {
-                        $this->sendNotification('Cannot close the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
+                        $this->sendNotification('Cannot close the pin numero ' . $pin);
                     }
                 } else {
                     $this->sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
                 }
             } else {
-                $this->sendNotification('Cannot open the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
+                $this->sendNotification('Cannot open the pin numero ' . $pin);
             }
         } else {
-            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['RELAY_PIN_NUMERO']);
+            $this->sendNotification('Cannot initialize the pin numero ' . $pin);
         }
 
         return $isOk;
@@ -393,8 +394,9 @@ class WaterTheGardenService
         $numberOfFlowPulses = 0;
 
         // Initialize the pin :
+        $pin = (int) $_ENV['FLOW_METER_PIN_NUMERO'];
         $gpio = new GPIO();
-        $isOkSetup = $gpio->setup($_ENV['FLOW_METER_PIN_NUMERO'], 'in');
+        $isOkSetup = $gpio->setup($pin, 'in');
         if ($isOkSetup !== false) {
             // Each seconds :
             $start = \time();
@@ -405,11 +407,11 @@ class WaterTheGardenService
                 echo $diff . ": ";
 
                 // Read the pin :
-                $input = $gpio->input($_ENV['FLOW_METER_PIN_NUMERO']);
+                $input = $gpio->input($pin);
                 echo $input . " \n";
             }
         } else {
-            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['FLOW_METER_PIN_NUMERO']);
+            $this->sendNotification('Cannot initialize the pin numero ' . $pin);
         }
 
         return $numberOfFlowPulses;
