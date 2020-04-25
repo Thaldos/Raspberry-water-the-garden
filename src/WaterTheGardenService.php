@@ -11,10 +11,9 @@ class WaterTheGardenService
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
     const DATE_FORMAT_LONG = 'Y-m-d H:i:s';
-    const LAST_WATERING_FILENAME = 'lastwatering.txt';
     const ERROR_VALUE = 10000;
-    const TEMPERATURES_FILENAME = 'temperatures.txt';
-    const LASTWATERING_FILENAME = 'lastwatering.txt';
+    const LAST_TEMPERATURE_FILENAME = 'lasttemperature.txt';
+    const LAST_WATERING_FILENAME = 'lastwatering.txt';
 
     public function __construct()
     {
@@ -60,14 +59,14 @@ class WaterTheGardenService
         $todayStr = $todayDatetime->format(self::DATE_FORMAT_SHORT);
 
         // FilesPaths :
-        $temperaturesPath = __DIR__ . '/' . self::TEMPERATURES_FILENAME;
-        $lastWateringsPath = __DIR__ . '/' . self::LAST_WATERING_FILENAME;
+        $lastTemperaturePath = __DIR__ . '/' . self::LAST_TEMPERATURE_FILENAME;
+        $lastWateringPath = __DIR__ . '/' . self::LAST_WATERING_FILENAME;
 
         // Get today temperature :
-        $todayTemperature = $this->getValueFromFile($temperaturesPath);
+        $todayTemperature = $this->getValueFromFile($lastTemperaturePath);
         if ($todayTemperature !== self::ERROR_VALUE) {
             // Get delay since last watering :
-            $delaySinceLastWatering = $this->getDelaySinceLastWatering($lastWateringsPath);
+            $delaySinceLastWatering = $this->getDelaySinceLastWatering($lastWateringPath);
 
             // If this delay allow to launch a watering today :
             if ($delaySinceLastWatering !== self::ERROR_VALUE) {
@@ -244,12 +243,12 @@ class WaterTheGardenService
     /**
      * Return the delay in days since the last watering day.
      */
-    public function getDelaySinceLastWatering(string $lastWateringsFilename): int
+    public function getDelaySinceLastWatering(string $lastWateringFilename): int
     {
         $delaySinceLastWatering = self::ERROR_VALUE;
 
         // Get existing content :
-        $contentJson = file_get_contents($lastWateringsFilename);
+        $contentJson = file_get_contents($lastWateringFilename);
         if ($contentJson !== false) {
             $content = json_decode($contentJson, true);
             if (!empty($content)) {
@@ -262,7 +261,7 @@ class WaterTheGardenService
                 }
             }
         } else {
-            $this->sendNotification('Cannot read content from file ' . $lastWateringsFilename);
+            $this->sendNotification('Cannot read content from file ' . $lastWateringFilename);
         }
 
         return $delaySinceLastWatering;
