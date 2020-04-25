@@ -398,21 +398,23 @@ class WaterTheGardenService
         $gpio = new GPIO();
         $isOkSetup = $gpio->setup($pin, 'in');
         if ($isOkSetup !== false) {
-            // Each seconds :
             $start = \time();
             $diff = 0;
             while ($diff < $period) {
+                // update the timer :
                 $diff = \time() - $start;
-                \sleep(1);
-                echo $diff . ": ";
 
                 // Read the pin :
                 $input = $gpio->input($pin);
-                echo $input . " \n";
+                if ($input === 0) {
+                    $numberOfFlowPulses += 1;
+                }
             }
         } else {
             $this->sendNotification('Cannot initialize the pin numero ' . $pin);
         }
+
+        echo $numberOfFlowPulses;
 
         return $numberOfFlowPulses;
     }
