@@ -78,7 +78,7 @@ class WaterTheGardenService
                         $isOkOpen = $this->openThenCloseCarefullyThePump($delayForWatering);
                         if ($isOkOpen !== false) {
                             // Save the date of this watering :
-                            $isOkSave = $this->storeInFile($lastWateringsPath, $todayStr);
+                            $isOkSave = $this->storeInFile($lastWateringPath, $todayStr);
                             $isOk = true;
 
                             // Send a notification :
@@ -346,7 +346,7 @@ class WaterTheGardenService
         // Get the current temperature :
         $temperature = $this->getCurrentTemperature();
         if ($temperature !== self::ERROR_VALUE) {
-            $filePath = __DIR__ . '/' . self::TEMPERATURES_FILENAME;
+            $filePath = __DIR__ . '/' . self::LAST_TEMPERATURE_FILENAME;
             $isOk = $this->storeInFile($filePath, $temperature);
         } else {
             $isOk = false;
