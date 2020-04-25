@@ -174,7 +174,7 @@ Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-g
 Then Chmod the files `/home/pi/Raspberry-water-the-garden/src/temperatures.txt` and `/home/pi/Raspberry-water-the-garden/src/lastwatering.txt` to 777.
 
 ### Configuration
-Rename `.env.dist` to `.env` and customize the constants in the `.env` file as your wish.
+Copy `.env.dist` to `.env` and customize the constants in the `.env` file as your wish.
 
 ### Download the vendors 
 Then type in Raspberry terminal :
