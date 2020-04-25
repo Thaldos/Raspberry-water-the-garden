@@ -6,7 +6,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 class WaterTheGardenService
 {
-    const MODE_FIXED_DELAY = 'fixed';
+    const MODE_NOW = 'now';
     const MODE_COMPUTED_DELAY = 'computed';
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
@@ -33,7 +33,7 @@ class WaterTheGardenService
         $isOK = true;
 
         switch ($mode) {
-            case self::MODE_FIXED_DELAY:
+            case self::MODE_NOW:
                 $isOK = $this->waterTheGardenNow();
                 break;
             case self::MODE_RESET_HARDWARE:
@@ -75,7 +75,7 @@ class WaterTheGardenService
                     $delayForWatering = $this->getDelayForWatering($todayTemperature);
                     if (0 < $delayForWatering) {
                         // Open then close the pump :
-                        $isOkOpen = $this->openThenCloseCarefullyThePump($delayForWatering);
+                        $isOkOpen = $this->openThenCloseThePumpCarefully($delayForWatering);
                         if ($isOkOpen !== false) {
                             // Save the date of this watering :
                             $isOkSave = $this->storeInFile($lastWateringPath, $todayStr);
@@ -137,7 +137,7 @@ class WaterTheGardenService
         $todayStr = $todayDatetime->format(self::DATE_FORMAT_SHORT);
 
         // Open then close the pump during the minimum delay :
-        $isOkOpen = $this->openThenCloseCarefullyThePump($_ENV['DELAY_MIN']);
+        $isOkOpen = $this->openThenCloseThePumpCarefully($_ENV['DELAY_MIN']);
 
         // Send a notification :
         if ($isOkOpen !== false) {
@@ -171,7 +171,7 @@ class WaterTheGardenService
      * and valve get cold.
      * Return false if error occurred, true else.
      */
-    public function openThenCloseCarefullyThePump(int $delayForWatering): bool
+    public function openThenCloseThePumpCarefully(int $delayForWatering): bool
     {
         $isOk = true;
 
@@ -197,10 +197,8 @@ class WaterTheGardenService
     /**
      * Open then close the pump.
      * Return false if error occurred, true else.
-     *
-     * @return bool
      */
-    public function openThenCloseThePump($delayOfWatering)
+    public function openThenCloseThePump(int $delayOfWatering): bool
     {
         $isOk = false;
 
@@ -339,6 +337,9 @@ class WaterTheGardenService
         return $delayOfWatering;
     }
 
+    /**
+     * Store in file the current temperature given by API.
+     */
     public function storeCurrentTemperature(): bool
     {
         $isOk = true;
