@@ -169,9 +169,11 @@ UseSTARTTLS=YES
     
 ## Project installation
 ### Copying of the project files on your Raspberry pi
-Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-garden/`.
-
-Then Chmod the files `/home/pi/Raspberry-water-the-garden/src/temperatures.txt` and `/home/pi/Raspberry-water-the-garden/src/lastwatering.txt` to 777.
+Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-garden/` by typing :
+```
+cd /home/pi/
+git clone https://github.com/Thaldos/Raspberry-water-the-garden.git
+```
 
 ### Configuration
 Copy `.env.dist` to `.env` and customize the constants in the `.env` file as your wish.

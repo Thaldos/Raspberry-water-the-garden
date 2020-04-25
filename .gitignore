@@ -5,3 +5,5 @@
 .DS_Store
 .env
 vendor
+src/temperatures.txt
+src/lastwatering.txt
