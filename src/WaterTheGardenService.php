@@ -99,7 +99,7 @@ class WaterTheGardenService
                             );
                         } else {
                             $this->sendNotification(
-                                "The garden has probably not been watered today because a error occurred during handling the relay module. \n" .
+                                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. \n" .
                                 'It would be a good idea to check the hardware system.'
                             );
                         }
@@ -158,7 +158,7 @@ class WaterTheGardenService
             );
         } else {
             $this->sendNotification(
-                "The garden has probably not been watered today because a error occurred during handling the relay module. \n" .
+                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. \n" .
                 'It would be a good idea to check the hardware system.'
             );
         }
@@ -399,7 +399,7 @@ class WaterTheGardenService
 
                 // Read the pin :
                 $input = $gpio->input($pin);
-                if ($input === 0) {
+                if ($input == 0) {
                     $numberOfFlowPulses += 1;
                 }
 
