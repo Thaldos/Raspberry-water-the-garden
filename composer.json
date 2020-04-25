@@ -1,7 +1,8 @@
 {
     "require": {
         "ronanguilloux/php-gpio": "^1.0",
-        "symfony/http-client": "^5.0"
+        "symfony/http-client": "^5.0",
+        "symfony/dotenv": "^5.0"
 	},
 	"autoload": {
         "psr-4": {

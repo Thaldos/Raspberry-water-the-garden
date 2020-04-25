@@ -3,4 +3,5 @@
 .buildpath
 .project
 .DS_Store
+.env
 vendor

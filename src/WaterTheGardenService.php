@@ -2,6 +2,7 @@
 
 use Symfony\Component\HttpClient\HttpClient;
 use PhpGpio\Gpio;
+use Symfony\Component\Dotenv\Dotenv;
 
 class WaterTheGardenService
 {
@@ -15,10 +16,16 @@ class WaterTheGardenService
     const TEMPERATURES_FILENAME = 'temperatures.txt';
     const LASTWATERING_FILENAME = 'lastwatering.txt';
 
+    public function __construct()
+    {
+        $dotenv = new Dotenv();
+        $dotenv->load(__DIR__ . '/../.env');
+    }
+
     /**
      * Open the pump for the appropriate delay.
      * Modes :
-     * 		fixed : the garden is watered during Config::DELAY_MIN min.
+     * 		fixed : the garden is watered during $_ENV['DELAY_MIN'] min.
      *  	computed : the garden is watered during a delay computed from the today temperature and the delay since the last watering.
      * 		reset : open the relay, wait 10s, then close it.
      */
@@ -64,7 +71,7 @@ class WaterTheGardenService
 
             // If this delay allow to launch a watering today :
             if ($delaySinceLastWatering !== self::ERROR_VALUE) {
-                if (Config::DELAY_MIN_BETWEEN_WATERING <= $delaySinceLastWatering) {
+                if ($_ENV['DELAY_MIN_BETWEEN_WATERING'] <= $delaySinceLastWatering) {
                     // Get watering time :
                     $delayForWatering = $this->getDelayForWatering($todayTemperature);
                     if (0 < $delayForWatering) {
@@ -81,11 +88,11 @@ class WaterTheGardenService
                             $this->sendNotification(
                                 "The garden have been successfully watered today. \n" .
                                 'Today temperature : ' . $todayTemperature . "C \n" .
-                                'Temperature for start watering : ' . Config::TEMPERATURE_FOR_DELAY_MIN . "C \n" .
+                                'Temperature for start watering : ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . "C \n" .
                                 'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . " \n" .
-                                'Delay minimal between watering : ' . Config::DELAY_MIN_BETWEEN_WATERING . ' ' . $dayOrDays . " \n" .
-                                'Delay max of consecutive pump and valve running : ' . Config::DELAY_MAX_RUNNING . " minutes \n" .
-                                'Waiting delay to avoid pump or valve overheated : ' . Config::DELAY_BETWEEN_RUNNING . " minutes \n" .
+                                'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . " \n" .
+                                'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . " minutes \n" .
+                                'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes \n" .
                                 'Delay of watering : ' . $delayForWatering . "min \n" .
                                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
                                 'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n"
@@ -99,14 +106,14 @@ class WaterTheGardenService
                     } else {
                         $this->sendNotification(
                             'No watering today because the today temperature (' . $todayTemperature . "C) was too low. \n" .
-                            'The start is defined to ' . Config::TEMPERATURE_FOR_DELAY_MIN . 'C.'
+                            'The start is defined to ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . 'C.'
                         );
                     }
                 } else {
                     $dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
                     $this->sendNotification(
                         'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. \n" .
-                        'The delay minimum between watering is defined to ' . Config::DELAY_MIN_BETWEEN_WATERING . ' days.'
+                        'The delay minimum between watering is defined to ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' days.'
                     );
                 }
             } else {
@@ -131,7 +138,7 @@ class WaterTheGardenService
         $todayStr = $todayDatetime->format(self::DATE_FORMAT_SHORT);
 
         // Open then close the pump during the minimum delay :
-        $isOkOpen = $this->openThenCloseCarefullyThePump(Config::DELAY_MIN);
+        $isOkOpen = $this->openThenCloseCarefullyThePump($_ENV['DELAY_MIN']);
 
         // Send a notification :
         if ($isOkOpen !== false) {
@@ -144,7 +151,7 @@ class WaterTheGardenService
             $dateNow = new DateTime();
             $this->sendNotification(
                 "The garden have been successfully manually watered today. \n" .
-                'Delay of watering : ' . Config::DELAY_MIN . "min \n" .
+                'Delay of watering : ' . $_ENV['DELAY_MIN'] . "min \n" .
                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
                 'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n"
             );
@@ -170,16 +177,16 @@ class WaterTheGardenService
         $isOk = true;
 
         // Get number of sub round of watering needed to avoid overheating :
-        $nbrOfWateringRound = floor($delayForWatering / Config::DELAY_MAX_RUNNING);
+        $nbrOfWateringRound = floor($delayForWatering / $_ENV['DELAY_MAX_RUNNING']);
         for ($i = 0; $i < $nbrOfWateringRound; $i++) {
-            $isOkOpen = $this->openThenCloseThePump(Config::DELAY_MAX_RUNNING);
-            $secondes = Config::DELAY_BETWEEN_RUNNING * 60;
+            $isOkOpen = $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']);
+            $secondes = $_ENV['DELAY_BETWEEN_RUNNING'] * 60;
             $isOkSleep = sleep($secondes);
             $isOk = $isOk && $isOkOpen && ($isOkSleep !== false);
         }
 
         // Watering of the eventually rest of delay of watering :
-        $restOfDelayOfWatering = $delayForWatering % Config::DELAY_MAX_RUNNING;
+        $restOfDelayOfWatering = $delayForWatering % $_ENV['DELAY_MAX_RUNNING'];
         if ($restOfDelayOfWatering !== 0) {
             $isOkRestOpen = $this->openThenCloseThePump($restOfDelayOfWatering);
             $isOk = $isOk && $isOkRestOpen;
@@ -200,35 +207,35 @@ class WaterTheGardenService
 
         // Initialize the pin :
         $gpio = new GPIO();
-        $isOkSetup = $gpio->setup(Config::PIN_NUMERO, 'out');
+        $isOkSetup = $gpio->setup($_ENV['PIN_NUMERO'], 'out');
         if ($isOkSetup !== false) {
             // Open the pump :
-            $isOkOutPutOne = $gpio->output(Config::PIN_NUMERO, 1);
+            $isOkOutPutOne = $gpio->output($_ENV['PIN_NUMERO'], 1);
             if ($isOkOutPutOne !== false) {
                 // Wait during the watering time :
                 $seconds = $delayOfWatering * 60;
                 $isOkSleep = sleep($seconds);
                 if ($isOkSleep !== false) {
                     // Close the pump :
-                    $isOkOutPutZero = $gpio->output(Config::PIN_NUMERO, 0);
+                    $isOkOutPutZero = $gpio->output($_ENV['PIN_NUMERO'], 0);
                     if ($isOkOutPutZero !== false) {
                         $isOkUnexport = $gpio->unexportAll();
                         if ($isOkUnexport !== false) {
                             $isOk = true;
                         } else {
-                            $this->sendNotification('Cannot unexport the pin numero ' . Config::PIN_NUMERO);
+                            $this->sendNotification('Cannot unexport the pin numero ' . $_ENV['PIN_NUMERO']);
                         }
                     } else {
-                        $this->sendNotification('Cannot close the pin numero ' . Config::PIN_NUMERO);
+                        $this->sendNotification('Cannot close the pin numero ' . $_ENV['PIN_NUMERO']);
                     }
                 } else {
                     $this->sendNotification('Cannot sleep for ' . $delayOfWatering . ' minutes');
                 }
             } else {
-                $this->sendNotification('Cannot open the pin numero ' . Config::PIN_NUMERO);
+                $this->sendNotification('Cannot open the pin numero ' . $_ENV['PIN_NUMERO']);
             }
         } else {
-            $this->sendNotification('Cannot initialize the pin numero ' . Config::PIN_NUMERO);
+            $this->sendNotification('Cannot initialize the pin numero ' . $_ENV['PIN_NUMERO']);
         }
 
         return $isOk;
@@ -318,15 +325,15 @@ class WaterTheGardenService
     {
         $delayOfWatering = 0;
 
-        if (Config::TEMPERATURE_FOR_DELAY_MIN <= $temperature) {
-            $v = (Config::DELAY_MAX - Config::DELAY_MIN) / (Config::TEMPERATURE_FOR_DELAY_MAX - Config::TEMPERATURE_FOR_DELAY_MIN);
-            $a = (Config::DELAY_MAX - Config::DELAY_MIN + Config::TEMPERATURE_FOR_DELAY_MIN * $v) / Config::TEMPERATURE_FOR_DELAY_MAX;
-            $b = Config::DELAY_MIN - Config::TEMPERATURE_FOR_DELAY_MIN * $v;
+        if ($_ENV['TEMPERATURE_FOR_DELAY_MIN'] <= $temperature) {
+            $v = ($_ENV['DELAY_MAX'] - $_ENV['DELAY_MIN']) / ($_ENV['TEMPERATURE_FOR_DELAY_MAX'] - $_ENV['TEMPERATURE_FOR_DELAY_MIN']);
+            $a = ($_ENV['DELAY_MAX'] - $_ENV['DELAY_MIN'] + $_ENV['TEMPERATURE_FOR_DELAY_MIN'] * $v) / $_ENV['TEMPERATURE_FOR_DELAY_MAX'];
+            $b = $_ENV['DELAY_MIN'] - $_ENV['TEMPERATURE_FOR_DELAY_MIN'] * $v;
             $delayOfWatering = $a * $temperature + $b;
 
             // Clamp with max delay :
-            if (Config::DELAY_MAX < $delayOfWatering) {
-                $delayOfWatering = Config::DELAY_MAX;
+            if ($_ENV['DELAY_MAX'] < $delayOfWatering) {
+                $delayOfWatering = $_ENV['DELAY_MAX'];
             }
         }
 
@@ -358,7 +365,7 @@ class WaterTheGardenService
 
         $client = HttpClient::create();
         $response = $client->request('GET', 'https://api.openweathermap.org/data/2.5/weather?q=' .
-            Config::API_CITY . '&appid=' . Config::API_KEY . '&units=metric');
+            $_ENV['API_CITY'] . '&appid=' . $_ENV['API_KEY'] . '&units=metric');
         $statusCode = $response->getStatusCode();
         if ($statusCode == 200) {
             $weatherData = $response->toArray();
@@ -380,6 +387,6 @@ class WaterTheGardenService
     public function sendNotification(string $message): void
     {
         echo $message;
-        mail(Config::EMAIL_TO, 'Raspberry garden watering notification', $message);
+        mail($_ENV['EMAIL_TO'], 'Raspberry garden watering notification', $message);
     }
 }

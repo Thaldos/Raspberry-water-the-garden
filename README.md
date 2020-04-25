@@ -173,8 +173,8 @@ Copy all this project files to your Raspberry in `/home/pi/Raspberry-water-the-g
 
 Then Chmod the files `/home/pi/Raspberry-water-the-garden/src/temperatures.txt` and `/home/pi/Raspberry-water-the-garden/src/lastwatering.txt` to 777.
 
-### Customization
-Customize the constants in the `src/Config.php` file.
+### Configuration
+Rename `.env.dist` to `.env` and customize the constants in the `.env` file as your wish.
 
 ### Download the vendors 
 Then type in Raspberry terminal :
@@ -205,7 +205,7 @@ You can run manually the watering by typing in your Rapsberry Pi terminal :
 ```
 sudo php /home/pi/Raspberry-water-the-garden/waterthegarden.php fixed 
 ```
-The garden will be watered during the delay defined by `DELAY_MIN` in `config.php`.
+The garden will be watered during the delay defined by `DELAY_MIN` in `.env`.
 <br>
 <br>
 <br>
