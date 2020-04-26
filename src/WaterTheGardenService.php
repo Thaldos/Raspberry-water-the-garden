@@ -10,6 +10,7 @@ class WaterTheGardenService
     const MODE_COMPUTED_DELAY = 'computed';
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
+    const DATE_FORMAT_MEDIUM = 'H:i:s';
     const DATE_FORMAT_LONG = 'Y-m-d H:i:s';
     const ERROR_VALUE = 100000000000;
     const LAST_TEMPERATURE_FILENAME = 'lasttemperature.txt';
@@ -75,11 +76,14 @@ class WaterTheGardenService
                     $delayForWatering = $this->getDelayForWatering($todayTemperature);
                     if (0 < $delayForWatering) {
                         // Open then close the pump :
-                        $numberOfFlowPulses = $this->openThenCloseThePumpCarefully($delayForWatering);
-                        if ($numberOfFlowPulses !== 0) {
+                        $flowPulses = $this->openThenCloseThePumpCarefully($delayForWatering);
+                        if (!empty($flowPulses)) {
                             // Save the date of this watering :
                             $isOkSave = $this->storeInFile($lastWateringPath, $todayStr);
                             $isOk = true;
+
+                            // Get charts image html with the pulses data :
+                            $chartImageHtml = $this->getChartImageHtml($flowPulses);
 
                             // Send a notification :
                             $dateNow = new DateTime();
@@ -94,8 +98,8 @@ class WaterTheGardenService
                                 'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes \n" .
                                 'Delay of watering : ' . $delayForWatering . " minutes \n" .
                                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n" .
-                                'Number of pulses measured by the flowmeter : ' . \number_format($numberOfFlowPulses, 0, ',', ' ')
+                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n \n" .
+                                $chartImageHtml
                             );
                         } else {
                             $this->sendNotification(
@@ -138,14 +142,17 @@ class WaterTheGardenService
         $todayStr = $todayDatetime->format(self::DATE_FORMAT_SHORT);
 
         // Open then close the pump during the minimum delay :
-        $numberOfFlowPulses = $this->openThenCloseThePumpCarefully($_ENV['DELAY_MIN']);
+        $flowPulses = $this->openThenCloseThePumpCarefully($_ENV['DELAY_MIN']);
 
         // Send a notification :
-        if ($numberOfFlowPulses !== 0) {
+        if (!empty($flowPulses)) {
             // Save the date of this watering :
             $lastWateringsPath = __DIR__ . '/' . self::LAST_WATERING_FILENAME;
             $isOkSave = $this->storeInFile($lastWateringsPath, $todayStr);
             $isOk = true;
+
+            // Get charts with the pulses data :
+            $chartImageHtml = $this->getChartImageHtml($flowPulses);
 
             // Send a notification :
             $dateNow = new DateTime();
@@ -153,8 +160,8 @@ class WaterTheGardenService
                 "The garden have been successfully manually watered today. \n" .
                 'Delay of watering : ' . $_ENV['DELAY_MIN'] . "min \n" .
                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n" .
-                'Number of pulses measured by the flowmeter : ' . \number_format($numberOfFlowPulses, 0, ',', ' ')
+                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n \n" .
+                $chartImageHtml
             );
         } else {
             $this->sendNotification(
@@ -171,16 +178,16 @@ class WaterTheGardenService
      * If the $delayForWatering if greater than the DELAY_MAX_RUNNING, a sub sequence of watering
      * will created, with waiting delay between running times, in order to let the pump
      * and valve get cold.
-     * Return the number of pulses measured by the flowmeter during this period.
+     * Return the pulses measured by the flowmeter during this period.
      */
-    public function openThenCloseThePumpCarefully(int $delayForWatering): int
+    public function openThenCloseThePumpCarefully(int $delayForWatering): array
     {
-        $numberOfFlowPulses = 0;
+        $flowPulses = [];
 
         // Get number of sub round of watering needed to avoid overheating :
         $nbrOfWateringRound = floor($delayForWatering / $_ENV['DELAY_MAX_RUNNING']);
         for ($i = 0; $i < $nbrOfWateringRound; $i++) {
-            $numberOfFlowPulses += $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']);
+            $flowPulses = \array_merge($flowPulses, $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']));
             $secondes = $_ENV['DELAY_BETWEEN_RUNNING'] * 60;
             \sleep($secondes);
         }
@@ -188,19 +195,19 @@ class WaterTheGardenService
         // Watering of the eventually rest of delay of watering :
         $restOfDelayOfWatering = $delayForWatering % $_ENV['DELAY_MAX_RUNNING'];
         if ($restOfDelayOfWatering !== 0) {
-            $numberOfFlowPulses += $this->openThenCloseThePump($restOfDelayOfWatering);
+            $flowPulses = \array_merge($flowPulses, $this->openThenCloseThePump($restOfDelayOfWatering));
         }
 
-        return $numberOfFlowPulses;
+        return $flowPulses;
     }
 
     /**
      * Open then close the pump.
-     * Return the number of pulses measured by the flowmeter during this period.
+     * Return the pulses measured by the flowmeter during this period.
      */
-    public function openThenCloseThePump(int $delayOfWatering): int
+    public function openThenCloseThePump(int $delayOfWatering): array
     {
-        $numberOfFlowPulses = self::ERROR_VALUE;
+        $flowPulses = [];
 
         // Initialize the pin :
         $pin = (int) $_ENV['RELAY_PIN_NUMERO'];
@@ -212,7 +219,7 @@ class WaterTheGardenService
             if ($isOkOutPutOne !== false) {
                 //  Wait during the watering time and get the flowmeter data :
                 $delayOfWateringInSeconds = $delayOfWatering * 60;
-                $numberOfFlowPulses = $this->waitAndGetNumberOfFlowPulses($delayOfWateringInSeconds);
+                $flowPulses = $this->waitAndGetFlowPulses($delayOfWateringInSeconds);
 
                 // Close the pump :
                 $isOkOutPutZero = $gpio->output($pin, 0);
@@ -231,7 +238,7 @@ class WaterTheGardenService
             $this->sendNotification('Cannot initialize the pin numero ' . $pin);
         }
 
-        return $numberOfFlowPulses;
+        return $flowPulses;
     }
 
     /**
@@ -378,12 +385,12 @@ class WaterTheGardenService
     }
 
     /**
-     * Wait during the given period and return the number of flow pulses measured by the flowmeter during this period.
+     * Wait during the given period and return the pulses measured by the flowmeter during this period.
      * The period have to be in seconds.
      */
-    public function waitAndGetNumberOfFlowPulses(int $period): int
+    public function waitAndGetFlowPulses(int $period): array
     {
-        $numberOfFlowPulses = 0;
+        $flowPulses = [];
 
         // Initialize the pin :
         $pin = (int) $_ENV['FLOW_METER_PIN_NUMERO'];
@@ -393,24 +400,66 @@ class WaterTheGardenService
             $start = \time();
             $diff = 0;
             $secureCpt = 0;
+            $subDiff = 0;
+            $subStart = \time();
+            $subFlowPulses = 0;
             while ($diff < $period && $secureCpt < 10000000) {
-                // update the timer :
-                $diff = \time() - $start;
+                $now = \time();
 
                 // Read the pin :
                 $input = $gpio->input($pin);
                 if ($input == 0) {
-                    $numberOfFlowPulses += 1;
+                    $subFlowPulses += 1;
                 }
 
-                // Secure counter to avoid a infinte loop :
+                // Save the total of pulses every 10s :
+                $subDiff = $now - $subStart;
+                if ($subDiff >= 10) {
+                    $flowPulses[$now] = $subFlowPulses;
+                    $subStart = $now;
+                    $subFlowPulses = 0;
+                }
+
+                // update the timer :
+                $diff = $now - $start;
+
+                // Secure counter to avoid an infinte loop :
                 $secureCpt += 1;
             }
         } else {
             $this->sendNotification('Cannot initialize the pin numero ' . $pin);
         }
 
-        return $numberOfFlowPulses;
+        return $flowPulses;
+    }
+
+    /**
+     * Return charts image html with the pulses data.
+     */
+    public function getChartImageHtml(array $flowPulses): string
+    {
+        $valuesCommatSeparated = implode(',', $flowPulses);
+        $keys = array_keys($flowPulses);
+        $dateStr = [];
+        foreach ($keys as $key) {
+            $dateTime = new DateTime();
+            $dateTime->setTimestamp($key);
+            $dateStr[] = $dateTime->format(self::DATE_FORMAT_MEDIUM);
+        }
+        $keysPipeSeparated = implode('|', $dateStr);
+        $cht = 'lc';
+        $chs = '700x300';
+        $chg = '33,10,3,3,0,0';
+        $chd = 'a:' . $valuesCommatSeparated;
+        $chxt = 'x,y';
+        $chxl = '0:|' . $keysPipeSeparated;
+        $chls = '5';
+        $chco = '224499';
+        $url = 'https://image-charts.com/chart?cht=' . $cht . '&chs=' . $chs . '&chxt=' . $chxt . '&chg=' . $chg . '&chd=' . $chd .
+        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco;
+        $html = '<img src="' . $url . '" alt="Chart">';
+
+        return $html;
     }
 
     /**
