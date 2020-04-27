@@ -89,34 +89,34 @@ class WaterTheGardenService
                             $dateNow = new DateTime();
                             $dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
                             $this->sendNotification(
-                                "The garden have been successfully watered today. \n" .
-                                'Today temperature : ' . $todayTemperature . "C \n" .
-                                'Temperature for start watering : ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . "C \n" .
-                                'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . " \n" .
-                                'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . " \n" .
-                                'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . " minutes \n" .
-                                'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes \n" .
-                                'Delay of watering : ' . $delayForWatering . " minutes \n" .
-                                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n" .
+                                "The garden have been successfully watered today. <br />" .
+                                'Today temperature : ' . $todayTemperature . "C <br />" .
+                                'Temperature for start watering : ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . "C <br />" .
+                                'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . " <br />" .
+                                'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . " <br />" .
+                                'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . " minutes <br />" .
+                                'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes <br />" .
+                                'Delay of watering : ' . $delayForWatering . " minutes <br />" .
+                                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " <br />" .
+                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . "  <br /> <br />" .
                                 $chartImageHtml
                             );
                         } else {
                             $this->sendNotification(
-                                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. \n" .
+                                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />" .
                                 'It would be a good idea to check the hardware system.'
                             );
                         }
                     } else {
                         $this->sendNotification(
-                            'No watering today because the today temperature was too low : ' . $todayTemperature . "C. \n" .
+                            'No watering today because the today temperature was too low : ' . $todayTemperature . "C. <br />" .
                             'The start is defined to ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . 'C.'
                         );
                     }
                 } else {
                     $dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
                     $this->sendNotification(
-                        'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. \n" .
+                        'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. <br />" .
                         'The delay minimum between watering is defined to ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' days.'
                     );
                 }
@@ -157,15 +157,15 @@ class WaterTheGardenService
             // Send a notification :
             $dateNow = new DateTime();
             $this->sendNotification(
-                "The garden have been successfully manually watered today. \n" .
-                'Delay of watering : ' . $_ENV['DELAY_MIN'] . "min \n" .
-                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n" .
+                'The garden have been successfully manually watered today. <br />' .
+                'Delay of watering : ' . $_ENV['DELAY_MIN'] . 'min <br />' .
+                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " <br />" .
+                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " <br /> <br />" .
                 $chartImageHtml
             );
         } else {
             $this->sendNotification(
-                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. \n" .
+                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />" .
                 'It would be a good idea to check the hardware system.'
             );
         }
