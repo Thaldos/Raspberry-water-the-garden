@@ -10,7 +10,7 @@ class WaterTheGardenService
     const MODE_COMPUTED_DELAY = 'computed';
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
-    const DATE_FORMAT_MEDIUM = 'H:i:s';
+    const DATE_FORMAT_MIN = 'i';
     const DATE_FORMAT_LONG = 'Y-m-d H:i:s';
     const ERROR_VALUE = 100000000000;
     const LAST_TEMPERATURE_FILENAME = 'lasttemperature.txt';
@@ -98,7 +98,7 @@ class WaterTheGardenService
                                 'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes \n" .
                                 'Delay of watering : ' . $delayForWatering . " minutes \n" .
                                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n \n" .
+                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n" .
                                 $chartImageHtml
                             );
                         } else {
@@ -160,7 +160,7 @@ class WaterTheGardenService
                 "The garden have been successfully manually watered today. \n" .
                 'Delay of watering : ' . $_ENV['DELAY_MIN'] . "min \n" .
                 'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " \n" .
-                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n \n" .
+                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " \n \n" .
                 $chartImageHtml
             );
         } else {
@@ -412,9 +412,9 @@ class WaterTheGardenService
                     $subFlowPulses += 1;
                 }
 
-                // Save the total of pulses every 10s :
+                // Save the total of pulses every 60s :
                 $subDiff = $now - $subStart;
-                if ($subDiff >= 10) {
+                if ($subDiff >= 60) {
                     $flowPulses[$now] = $subFlowPulses;
                     $subStart = $now;
                     $subFlowPulses = 0;
@@ -444,19 +444,20 @@ class WaterTheGardenService
         foreach ($keys as $key) {
             $dateTime = new DateTime();
             $dateTime->setTimestamp($key);
-            $dateStr[] = $dateTime->format(self::DATE_FORMAT_MEDIUM);
+            $dateStr[] = $dateTime->format(self::DATE_FORMAT_MIN);
         }
         $keysPipeSeparated = implode('|', $dateStr);
         $cht = 'lc';
-        $chs = '700x300';
+        $chs = '999x300';
         $chg = '33,10,3,3,0,0';
         $chd = 'a:' . $valuesCommatSeparated;
         $chxt = 'x,y';
         $chxl = '0:|' . $keysPipeSeparated;
         $chls = '5';
         $chco = '224499';
+        $chxr = '1,42000,400000';
         $url = 'https://image-charts.com/chart?cht=' . $cht . '&chs=' . $chs . '&chxt=' . $chxt . '&chg=' . $chg . '&chd=' . $chd .
-        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco;
+        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco . '&chxr=' . $chxr;
         $html = '<img src="' . $url . '" alt="Chart">';
 
         return $html;
@@ -468,6 +469,14 @@ class WaterTheGardenService
     public function sendNotification(string $message): void
     {
         echo $message;
-        mail($_ENV['EMAIL_TO'], 'Raspberry garden watering notification', $message);
+        $headers = 'MIME-Version: 1.0' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        $headers .= 'From: ' . $_ENV['EMAIL_FROM'] . "\r\n" .
+            'Reply-To: ' . $_ENV['EMAIL_FROM'] . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+        $messageHtml = '<html><body>';
+        $messageHtml .= $message;
+        $messageHtml .= '</body></html>';
+        mail($_ENV['EMAIL_TO'], 'Raspberry garden watering notification', $messageHtml, $headers);
     }
 }
