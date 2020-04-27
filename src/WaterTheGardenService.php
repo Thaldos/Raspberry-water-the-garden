@@ -455,7 +455,7 @@ class WaterTheGardenService
         $chxl = '0:|' . $keysPipeSeparated;
         $chls = '5';
         $chco = '224499';
-        $chxr = '1,42000,400000';
+        $chxr = '1,276000,286000';
         $url = 'https://image-charts.com/chart?cht=' . $cht . '&chs=' . $chs . '&chxt=' . $chxt . '&chg=' . $chg . '&chd=' . $chd .
         '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco . '&chxr=' . $chxr;
         $html = '<img src="' . $url . '" alt="Chart">';
