@@ -10,7 +10,7 @@ class WaterTheGardenService
     const MODE_COMPUTED_DELAY = 'computed';
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
-    const DATE_FORMAT_MIN = 'i';
+    const DATE_FORMAT_MIN = 'H:i:s';
     const DATE_FORMAT_LONG = 'Y-m-d H:i:s';
     const ERROR_VALUE = 100000000000;
     const LAST_TEMPERATURE_FILENAME = 'lasttemperature.txt';
@@ -187,9 +187,12 @@ class WaterTheGardenService
         // Get number of sub round of watering needed to avoid overheating :
         $nbrOfWateringRound = floor($delayForWatering / $_ENV['DELAY_MAX_RUNNING']);
         for ($i = 0; $i < $nbrOfWateringRound; $i++) {
+            // Open, wait then close the pump :
             $flowPulses = \array_merge($flowPulses, $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']));
+
+            // Wait, and get the flow pulses :
             $secondes = $_ENV['DELAY_BETWEEN_RUNNING'] * 60;
-            \sleep($secondes);
+            $flowPulses = \array_merge($flowPulses, $this->waitAndGetFlowPulses($secondes));
         }
 
         // Watering of the eventually rest of delay of watering :
@@ -202,7 +205,7 @@ class WaterTheGardenService
     }
 
     /**
-     * Open then close the pump.
+     * Open, wait, then close the pump.
      * Return the pulses measured by the flowmeter during this period.
      */
     public function openThenCloseThePump(int $delayOfWatering): array
