@@ -420,8 +420,8 @@ class WaterTheGardenService
 
                 // Read the pin :
                 $input = $gpio->input($pin);
-                if ($input == 0) {
-                    $subFlowPulses += 1;
+                if (\is_int($input)) {
+                    $subFlowPulses += $input;
                 }
 
                 // Save the total of pulses every 60s :
@@ -453,7 +453,12 @@ class WaterTheGardenService
     {
         $valuesCommatSeparated = implode(',', $flowPulses);
         $dates = \array_keys($flowPulses);
-        $keysPipeSeparated = implode('|', $dates);
+        $datesFormated = [];
+        foreach ($dates as $date) {
+            // '2020-04-30-18:09:58' -> 09 :
+            $datesFormated[] = \substr($date, -5, 2);
+        }
+        $keysPipeSeparated = \implode('|', $datesFormated);
         $cht = 'lc';
         $chs = '999x300';
         $chg = '33,10,3,3,0,0';
