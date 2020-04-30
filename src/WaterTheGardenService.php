@@ -10,7 +10,7 @@ class WaterTheGardenService
     const MODE_COMPUTED_DELAY = 'computed';
     const MODE_RESET_HARDWARE = 'reset';
     const DATE_FORMAT_SHORT = 'Y-m-d';
-    const DATE_FORMAT_MIN = 'H:i:s';
+    const DATE_FORMAT_MIN = 'Y-m-d-H:i:s';
     const DATE_FORMAT_LONG = 'Y-m-d H:i:s';
     const ERROR_VALUE = 100000000000;
     const LAST_TEMPERATURE_FILENAME = 'lasttemperature.txt';
@@ -89,34 +89,34 @@ class WaterTheGardenService
                             $dateNow = new DateTime();
                             $dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
                             $this->sendNotification(
-                                "The garden have been successfully watered today. <br />" .
-                                'Today temperature : ' . $todayTemperature . "C <br />" .
-                                'Temperature for start watering : ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . "C <br />" .
-                                'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . " <br />" .
-                                'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . " <br />" .
-                                'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . " minutes <br />" .
-                                'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . " minutes <br />" .
-                                'Delay of watering : ' . $delayForWatering . " minutes <br />" .
-                                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " <br />" .
-                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . "  <br /> <br />" .
+                                'The garden have been successfully watered today. <br />' .
+                                'Today temperature : ' . $todayTemperature . 'C <br />' .
+                                'Temperature for start watering : ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . 'C <br />' .
+                                'Delay since last watering : ' . $delaySinceLastWatering . ' ' . $dayOrDays . ' <br />' .
+                                'Delay minimal between watering : ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' ' . $dayOrDays . ' <br />' .
+                                'Delay max of consecutive pump and valve running : ' . $_ENV['DELAY_MAX_RUNNING'] . ' minutes <br />' .
+                                'Waiting delay to avoid pump or valve overheated : ' . $_ENV['DELAY_BETWEEN_RUNNING'] . ' minutes <br />' .
+                                'Delay of watering : ' . $delayForWatering . ' minutes <br />' .
+                                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . ' <br />' .
+                                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . '  <br /> <br />' .
                                 $chartImageHtml
                             );
                         } else {
                             $this->sendNotification(
-                                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />" .
+                                '0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />' .
                                 'It would be a good idea to check the hardware system.'
                             );
                         }
                     } else {
                         $this->sendNotification(
-                            'No watering today because the today temperature was too low : ' . $todayTemperature . "C. <br />" .
+                            'No watering today because the today temperature was too low : ' . $todayTemperature . 'C. <br />' .
                             'The start is defined to ' . $_ENV['TEMPERATURE_FOR_DELAY_MIN'] . 'C.'
                         );
                     }
                 } else {
                     $dayOrDays = (1 < $delaySinceLastWatering ? 'days' : 'day');
                     $this->sendNotification(
-                        'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . " ago. <br />" .
+                        'No watering today because the last watering was ' . $delaySinceLastWatering . ' ' . $dayOrDays . ' ago. <br />' .
                         'The delay minimum between watering is defined to ' . $_ENV['DELAY_MIN_BETWEEN_WATERING'] . ' days.'
                     );
                 }
@@ -159,13 +159,13 @@ class WaterTheGardenService
             $this->sendNotification(
                 'The garden have been successfully manually watered today. <br />' .
                 'Delay of watering : ' . $_ENV['DELAY_MIN'] . 'min <br />' .
-                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . " <br />" .
-                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . " <br /> <br />" .
+                'Date of watering start : ' . $todayDatetime->format(self::DATE_FORMAT_LONG) . ' <br />' .
+                'Date of watering end : ' . $dateNow->format(self::DATE_FORMAT_LONG) . ' <br /> <br />' .
                 $chartImageHtml
             );
         } else {
             $this->sendNotification(
-                "0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />" .
+                '0 pulses measured by the flow meter during this watering. The garden has probably not been watered. <br />' .
                 'It would be a good idea to check the hardware system.'
             );
         }
@@ -185,20 +185,29 @@ class WaterTheGardenService
         $flowPulses = [];
 
         // Get number of sub round of watering needed to avoid overheating :
-        $nbrOfWateringRound = floor($delayForWatering / $_ENV['DELAY_MAX_RUNNING']);
+        $nbrOfWateringRound = \floor($delayForWatering / $_ENV['DELAY_MAX_RUNNING']);
         for ($i = 0; $i < $nbrOfWateringRound; $i++) {
             // Open, wait then close the pump :
-            $flowPulses = \array_merge($flowPulses, $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']));
+            $flowPulsesTmp1 = $this->openThenCloseThePump($_ENV['DELAY_MAX_RUNNING']);
+            if (!empty($flowPulsesTmp1)) {
+                $flowPulses = \array_merge($flowPulses, $flowPulsesTmp1);
+            }
 
             // Wait, and get the flow pulses :
             $secondes = $_ENV['DELAY_BETWEEN_RUNNING'] * 60;
-            $flowPulses = \array_merge($flowPulses, $this->waitAndGetFlowPulses($secondes));
+            $flowPulsesTmp2 = $this->waitAndGetFlowPulses($secondes);
+            if (!empty($flowPulsesTmp2)) {
+                $flowPulses = \array_merge($flowPulses, $flowPulsesTmp2);
+            }
         }
 
         // Watering of the eventually rest of delay of watering :
         $restOfDelayOfWatering = $delayForWatering % $_ENV['DELAY_MAX_RUNNING'];
         if ($restOfDelayOfWatering !== 0) {
-            $flowPulses = \array_merge($flowPulses, $this->openThenCloseThePump($restOfDelayOfWatering));
+            $flowPulsesTmp3 = $this->openThenCloseThePump($restOfDelayOfWatering);
+            if (!empty($flowPulsesTmp3)) {
+                $flowPulses = \array_merge($flowPulses, $flowPulsesTmp3);
+            }
         }
 
         return $flowPulses;
@@ -252,9 +261,9 @@ class WaterTheGardenService
         $delaySinceLastWatering = self::ERROR_VALUE;
 
         // Get existing content :
-        $contentJson = file_get_contents($lastWateringFilename);
+        $contentJson = \file_get_contents($lastWateringFilename);
         if ($contentJson !== false) {
-            $content = json_decode($contentJson, true);
+            $content = \json_decode($contentJson, true);
             if (!empty($content)) {
                 $todayDateTime = new DateTime();
 
@@ -283,8 +292,8 @@ class WaterTheGardenService
         $todayStr = $todayDate->format(self::DATE_FORMAT_SHORT);
 
         // Create new content :
-        $newContent = json_encode([$todayStr => $value]);
-        $putReturn = file_put_contents($filePath, $newContent);
+        $newContent = \json_encode([$todayStr => $value]);
+        $putReturn = \file_put_contents($filePath, $newContent);
         if ($putReturn === false) {
             $isOk = false;
             $this->sendNotification('Cannot save ' . $todayStr . ' - ' . $value . ' in file ' . $filePath);
@@ -300,9 +309,9 @@ class WaterTheGardenService
     {
         $value = self::ERROR_VALUE;
 
-        $contentJson = file_get_contents($filePath);
+        $contentJson = \file_get_contents($filePath);
         if ($contentJson !== false) {
-            $content = json_decode($contentJson, true);
+            $content = \json_decode($contentJson, true);
             if (!empty($content)) {
                 $todayDateTime = new DateTime();
                 $todayStr = $todayDateTime->format(self::DATE_FORMAT_SHORT);
@@ -375,7 +384,7 @@ class WaterTheGardenService
         $statusCode = $response->getStatusCode();
         if ($statusCode == 200) {
             $weatherData = $response->toArray();
-            if (key_exists('main', $weatherData) && key_exists('temp', $weatherData['main'])) {
+            if (\key_exists('main', $weatherData) && \key_exists('temp', $weatherData['main'])) {
                 $temperature = $weatherData['main']['temp'];
             } else {
                 $this->sendNotification('Cannot get the temp value from the API response.');
@@ -418,7 +427,8 @@ class WaterTheGardenService
                 // Save the total of pulses every 60s :
                 $subDiff = $now - $subStart;
                 if ($subDiff >= 60) {
-                    $flowPulses[$now] = $subFlowPulses;
+                    $nowDateTime = new DateTime();
+                    $flowPulses[$nowDateTime->format(self::DATE_FORMAT_MIN)] = $subFlowPulses;
                     $subStart = $now;
                     $subFlowPulses = 0;
                 }
@@ -442,14 +452,8 @@ class WaterTheGardenService
     public function getChartImageHtml(array $flowPulses): string
     {
         $valuesCommatSeparated = implode(',', $flowPulses);
-        $keys = array_keys($flowPulses);
-        $dateStr = [];
-        foreach ($keys as $key) {
-            $dateTime = new DateTime();
-            $dateTime->setTimestamp($key);
-            $dateStr[] = $dateTime->format(self::DATE_FORMAT_MIN);
-        }
-        $keysPipeSeparated = implode('|', $dateStr);
+        $dates = \array_keys($flowPulses);
+        $keysPipeSeparated = implode('|', $dates);
         $cht = 'lc';
         $chs = '999x300';
         $chg = '33,10,3,3,0,0';
@@ -458,9 +462,8 @@ class WaterTheGardenService
         $chxl = '0:|' . $keysPipeSeparated;
         $chls = '5';
         $chco = '224499';
-        $chxr = '1,276000,286000';
         $url = 'https://image-charts.com/chart?cht=' . $cht . '&chs=' . $chs . '&chxt=' . $chxt . '&chg=' . $chg . '&chd=' . $chd .
-        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco . '&chxr=' . $chxr;
+        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco;
         $html = '<img src="' . $url . '" alt="Chart">';
 
         return $html;
