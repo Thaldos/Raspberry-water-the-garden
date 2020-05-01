@@ -420,9 +420,7 @@ class WaterTheGardenService
 
                 // Read the pin :
                 $input = $gpio->input($pin);
-                if (\is_int($input)) {
-                    $subFlowPulses += $input;
-                }
+                $subFlowPulses += (int) $input;
 
                 // Save the total of pulses every 60s :
                 $subDiff = $now - $subStart;
