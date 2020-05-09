@@ -467,7 +467,7 @@ class WaterTheGardenService
         $chco = '224499';
         $chxr = '1,315000,324000';
         $url = 'https://image-charts.com/chart?cht=' . $cht . '&chs=' . $chs . '&chxt=' . $chxt . '&chg=' . $chg . '&chd=' . $chd .
-        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco . '&chxr=' . $chxr;
+        '&chxl=' . $chxl . '&chls=' . $chls . '&chco=' . $chco;
         $html = '<img src="' . $url . '" alt="Chart">';
 
         return $html;
