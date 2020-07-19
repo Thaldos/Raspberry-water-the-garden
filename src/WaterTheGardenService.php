@@ -25,7 +25,7 @@ class WaterTheGardenService
     /**
      * Open the pump for the appropriate delay.
      * Modes :
-     * 		fixed : the garden is watered during $_ENV['DELAY_MIN'] min.
+     * 		now : the garden is watered during $_ENV['DELAY_MIN'] min.
      *  	computed : the garden is watered during a delay computed from the today temperature and the delay since the last watering.
      * 		reset : open the relay, wait 10s, then close it.
      */
